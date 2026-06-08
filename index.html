@@ -7,967 +7,1079 @@
 <script src="https://cdn.tailwindcss.com"></script>
 <style>
   .line-clamp-2{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-  .kanban-col{min-height:320px;transition:background 0.15s,border 0.15s}
-  .drop-active{background:rgba(99,102,241,0.06)!important;border:2px dashed #6366f1!important;border-radius:0.5rem}
-  .card-dragging{opacity:0.35;transform:rotate(1.5deg);pointer-events:none}
-  .project-card{cursor:grab;transition:box-shadow 0.15s,transform 0.15s}
-  .project-card:hover{box-shadow:0 4px 16px rgba(0,0,0,0.1);transform:translateY(-2px)}
+  .kanban-col{min-height:320px;transition:background .15s,border .15s}
+  .drop-active{background:rgba(99,102,241,.06)!important;border:2px dashed #6366f1!important;border-radius:.5rem}
+  .card-dragging{opacity:.35;transform:rotate(1.5deg);pointer-events:none}
+  .project-card{cursor:grab;transition:box-shadow .15s,transform .15s}
+  .project-card:hover{box-shadow:0 4px 16px rgba(0,0,0,.1);transform:translateY(-2px)}
   .project-card:active{cursor:grabbing}
-  .scrollbar-thin::-webkit-scrollbar{width:4px}
-  .scrollbar-thin::-webkit-scrollbar-track{background:transparent}
-  .scrollbar-thin::-webkit-scrollbar-thumb{background:#CBD5E1;border-radius:4px}
+  ::-webkit-scrollbar{width:4px;height:4px}
+  ::-webkit-scrollbar-track{background:transparent}
+  ::-webkit-scrollbar-thumb{background:#CBD5E1;border-radius:4px}
   @keyframes slideDown{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
   @keyframes toastIn{from{opacity:0;transform:translateX(110%)}to{opacity:1;transform:translateX(0)}}
-  .anim-slide{animation:slideDown 0.2s ease-out}
-  .anim-toast{animation:toastIn 0.3s ease-out}
-  .modal-backdrop{background:rgba(15,23,42,0.55);backdrop-filter:blur(3px)}
-
-  /* KOBIS brand */
-  .kobis-logo-wrap{background:linear-gradient(135deg,#4338ca 0%,#7c3aed 55%,#a855f7 100%);box-shadow:0 0 0 1px rgba(255,255,255,0.12) inset,0 4px 16px rgba(99,102,241,0.45)}
-  .kobis-wordmark{background:linear-gradient(90deg,#e0e7ff 0%,#c4b5fd 40%,#a5b4fc 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;letter-spacing:0.12em;font-weight:800}
-  .kobis-sub{letter-spacing:0.22em;font-size:0.6rem;text-transform:uppercase;color:#94a3b8;font-weight:500}
+  .anim-slide{animation:slideDown .2s ease-out}
+  .anim-toast{animation:toastIn .3s ease-out}
+  .modal-backdrop{background:rgba(15,23,42,.55);backdrop-filter:blur(3px)}
+  .kobis-logo-wrap{background:linear-gradient(135deg,#4338ca 0%,#7c3aed 55%,#a855f7 100%);box-shadow:0 0 0 1px rgba(255,255,255,.12) inset,0 4px 16px rgba(99,102,241,.45)}
+  .kobis-wordmark{background:linear-gradient(90deg,#e0e7ff,#c4b5fd 40%,#a5b4fc);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;letter-spacing:.12em;font-weight:800}
+  .kobis-sub{letter-spacing:.22em;font-size:.6rem;text-transform:uppercase;color:#94a3b8;font-weight:500}
   .kobis-dot{color:#6366f1;margin:0 2px}
-  @keyframes pulse-ring{0%,100%{box-shadow:0 0 0 1px rgba(255,255,255,0.12) inset,0 4px 16px rgba(99,102,241,0.45)}50%{box-shadow:0 0 0 1px rgba(255,255,255,0.18) inset,0 4px 24px rgba(139,92,246,0.65)}}
-  .kobis-logo-wrap:hover{animation:pulse-ring 1.5s ease-in-out infinite}
+  .tab-btn{transition:all .15s;border-radius:.5rem;padding:.4rem .9rem;font-size:.78rem;font-weight:500;color:#64748b;display:inline-flex;align-items:center;gap:.35rem;white-space:nowrap}
+  .tab-btn:hover{background:#f1f5f9;color:#1e293b}
+  .tab-btn.active{background:#6366f1;color:white;box-shadow:0 2px 8px rgba(99,102,241,.35)}
+  .gantt-bar{height:26px;border-radius:6px;display:flex;align-items:center;padding:0 8px;font-size:11px;color:white;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer;transition:filter .15s;box-shadow:0 1px 4px rgba(0,0,0,.18)}
+  .gantt-bar:hover{filter:brightness(1.12)}
+  .gantt-today-line{position:absolute;top:0;bottom:0;width:2px;background:#ef4444;pointer-events:none;z-index:5}
+  .cal-cell{min-height:96px;border-radius:8px;padding:4px 5px;transition:background .1s}
+  .cal-cell:hover{background:#f8fafc}
+  .cal-today{background:#eef2ff!important;border:1.5px solid #a5b4fc}
+  .cal-other{opacity:.38}
+  .cal-event{font-size:10px;line-height:1.4;padding:1px 5px;border-radius:4px;color:white;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer}
+  .cal-event:hover{filter:brightness(1.1)}
+  .cal-personal{border-left:3px solid;background:#f8fafc!important;color:#374151!important;font-size:10px;line-height:1.4;padding:1px 5px;border-radius:0 4px 4px 0;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer}
+  .cal-personal:hover{background:#f1f5f9!important}
+  .effort-track{height:6px;border-radius:3px;background:#e2e8f0;overflow:hidden}
+  .effort-fill{height:100%;border-radius:3px;transition:width .5s}
+  input[type=color]{width:32px;height:32px;border-radius:6px;border:1px solid #e2e8f0;padding:2px;cursor:pointer}
 </style>
 </head>
 <body class="bg-slate-100 min-h-screen" style="font-family:'Pretendard','Noto Sans KR',sans-serif">
 
-<!-- ===== HEADER ===== -->
+<!-- HEADER -->
 <header class="bg-slate-800 text-white shadow-xl sticky top-0 z-40">
   <div class="max-w-screen-2xl mx-auto px-4 py-3 flex items-center justify-between gap-3 flex-wrap">
     <div class="flex items-center gap-3">
-      <!-- KOBIS Logo -->
-      <div class="kobis-logo-wrap w-11 h-11 rounded-2xl flex items-center justify-center flex-shrink-0 transition-all duration-300 cursor-default select-none">
-        <svg viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-9 h-9">
-          <!-- Kanban board: 3 columns -->
-          <!-- Column headers -->
-          <rect x="2"  y="3" width="12" height="3.5" rx="1" fill="white" opacity="0.45"/>
-          <rect x="16" y="3" width="12" height="3.5" rx="1" fill="white" opacity="0.45"/>
-          <rect x="30" y="3" width="12" height="3.5" rx="1" fill="white" opacity="0.45"/>
-          <!-- Col 1 cards -->
+      <div class="kobis-logo-wrap w-11 h-11 rounded-2xl flex items-center justify-center flex-shrink-0 select-none">
+        <svg viewBox="0 0 44 44" fill="none" class="w-9 h-9">
+          <rect x="2"  y="3" width="12" height="3.5" rx="1" fill="white" opacity=".45"/>
+          <rect x="16" y="3" width="12" height="3.5" rx="1" fill="white" opacity=".45"/>
+          <rect x="30" y="3" width="12" height="3.5" rx="1" fill="white" opacity=".45"/>
           <rect x="2"  y="9"  width="12" height="7" rx="2" fill="white"/>
-          <rect x="2"  y="18" width="12" height="7" rx="2" fill="white" opacity="0.7"/>
-          <rect x="2"  y="27" width="12" height="7" rx="2" fill="white" opacity="0.4"/>
-          <!-- Col 2 cards -->
+          <rect x="2"  y="18" width="12" height="7" rx="2" fill="white" opacity=".7"/>
+          <rect x="2"  y="27" width="12" height="7" rx="2" fill="white" opacity=".4"/>
           <rect x="16" y="9"  width="12" height="7" rx="2" fill="white"/>
-          <rect x="16" y="18" width="12" height="7" rx="2" fill="white" opacity="0.7"/>
-          <!-- Col 3 cards -->
+          <rect x="16" y="18" width="12" height="7" rx="2" fill="white" opacity=".7"/>
           <rect x="30" y="9"  width="12" height="7" rx="2" fill="white"/>
-          <!-- "done" checkmark accent on col 3 card -->
           <path d="M33 13l2 2 4-3.5" stroke="#7c3aed" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-          <!-- Bottom accent bar -->
-          <rect x="2" y="37" width="40" height="3" rx="1.5" fill="white" opacity="0.2"/>
+          <rect x="2" y="37" width="40" height="3" rx="1.5" fill="white" opacity=".2"/>
         </svg>
       </div>
-
-      <!-- Brand text -->
       <div class="leading-none select-none">
         <h1 class="kobis-wordmark text-2xl leading-none">KOBIS</h1>
-        <p class="kobis-sub mt-1">
-          Kanban<span class="kobis-dot">·</span>Operations<span class="kobis-dot">·</span>Business<span class="kobis-dot">·</span>Intelligence<span class="kobis-dot">·</span>Suite
-        </p>
+        <p class="kobis-sub mt-1">Kanban<span class="kobis-dot">·</span>Operations<span class="kobis-dot">·</span>Business<span class="kobis-dot">·</span>Intelligence<span class="kobis-dot">·</span>Suite</p>
       </div>
     </div>
     <div class="flex items-center gap-2 flex-wrap">
-      <button onclick="toggleEmailPanel()" id="btn-email-panel"
-        class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-violet-600 hover:bg-violet-500 rounded-lg text-xs font-medium transition-colors">
-        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
-        </svg>이메일 분석
+      <button onclick="toggleEmailPanel()" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-violet-600 hover:bg-violet-500 rounded-lg text-xs font-medium transition-colors">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>이메일 분석
       </button>
-      <label class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-600 hover:bg-slate-500 rounded-lg text-xs font-medium transition-colors cursor-pointer">
-        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/>
-        </svg>불러오기
-        <input type="file" accept=".json" class="hidden" onchange="importJSON(event)">
-      </label>
-      <button onclick="exportJSON()"
-        class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-600 hover:bg-slate-500 rounded-lg text-xs font-medium transition-colors">
-        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
-        </svg>저장하기
-      </button>
-      <button onclick="openCreateModal()"
-        class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 rounded-lg text-xs font-semibold transition-colors shadow">
-        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-        </svg>프로젝트 추가
+      <!-- Data file buttons -->
+      <div class="flex items-center gap-1 bg-slate-700 rounded-lg px-2 py-1">
+        <span class="text-xs text-slate-400 mr-1">JSON</span>
+        <label title="projects.json 불러오기" class="inline-flex items-center gap-1 px-2 py-1 bg-blue-600 hover:bg-blue-500 rounded text-xs font-medium cursor-pointer transition-colors">
+          <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>프로젝트
+          <input type="file" accept=".json" class="hidden" onchange="importFile(event,'projects')">
+        </label>
+        <label title="members.json 불러오기" class="inline-flex items-center gap-1 px-2 py-1 bg-emerald-600 hover:bg-emerald-500 rounded text-xs font-medium cursor-pointer transition-colors">
+          <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>팀원
+          <input type="file" accept=".json" class="hidden" onchange="importFile(event,'members')">
+        </label>
+        <label title="personal_calendar.json 불러오기" class="inline-flex items-center gap-1 px-2 py-1 bg-pink-600 hover:bg-pink-500 rounded text-xs font-medium cursor-pointer transition-colors">
+          <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>일정
+          <input type="file" accept=".json" class="hidden" onchange="importFile(event,'personal')">
+        </label>
+      </div>
+      <div class="flex items-center gap-1 bg-slate-700 rounded-lg px-2 py-1">
+        <span class="text-xs text-slate-400 mr-1">저장</span>
+        <button onclick="exportFile('projects')" title="projects.json 저장" class="px-2 py-1 bg-blue-600 hover:bg-blue-500 rounded text-xs font-medium transition-colors">프로젝트</button>
+        <button onclick="exportFile('members')" title="members.json 저장" class="px-2 py-1 bg-emerald-600 hover:bg-emerald-500 rounded text-xs font-medium transition-colors">팀원</button>
+        <button onclick="exportFile('personal')" title="personal_calendar.json 저장" class="px-2 py-1 bg-pink-600 hover:bg-pink-500 rounded text-xs font-medium transition-colors">일정</button>
+      </div>
+      <button onclick="openCreateModal()" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 rounded-lg text-xs font-semibold transition-colors shadow">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>프로젝트 추가
       </button>
     </div>
   </div>
 </header>
 
-<!-- ===== MAIN ===== -->
 <main class="max-w-screen-2xl mx-auto px-4 py-5 space-y-4">
 
   <!-- DASHBOARD -->
   <section id="dashboard" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3"></section>
 
-  <!-- FILTER BAR -->
+  <!-- FILTER + TABS -->
   <div class="flex flex-wrap items-center gap-2 bg-white rounded-xl px-4 py-2.5 shadow-sm">
-    <div class="flex-1 min-w-40 relative">
-      <svg class="w-4 h-4 absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-      </svg>
-      <input id="search-input" type="text" placeholder="프로젝트명, 고객사 검색…"
-        oninput="handleSearch(this.value)"
+    <div class="flex-1 min-w-36 relative">
+      <svg class="w-4 h-4 absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+      <input id="search-input" type="text" placeholder="프로젝트명, 고객사 검색…" oninput="handleSearch(this.value)"
         class="w-full pl-8 pr-3 py-1.5 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400">
     </div>
     <select id="status-filter" onchange="handleFilter(this.value)"
       class="px-3 py-1.5 text-sm border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400 bg-white">
-      <option value="">전체 상태</option>
-      <option value="대기">대기</option>
-      <option value="진행중">진행중</option>
-      <option value="완료">완료</option>
+      <option value="">전체 상태</option><option>대기</option><option>진행중</option><option>완료</option>
     </select>
-    <span id="filter-count" class="text-xs text-slate-400 ml-1"></span>
+    <span id="filter-count" class="text-xs text-slate-400"></span>
   </div>
 
-  <!-- EMAIL ANALYSIS PANEL -->
+  <!-- VIEW TABS -->
+  <div class="flex items-center gap-1 bg-white rounded-xl px-2 py-2 shadow-sm overflow-x-auto">
+    <button class="tab-btn active" id="tab-kanban" onclick="switchView('kanban')">
+      <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2"/></svg>칸반 보드
+    </button>
+    <button class="tab-btn" id="tab-gantt" onclick="switchView('gantt')">
+      <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>간트 차트
+    </button>
+    <button class="tab-btn" id="tab-calendar" onclick="switchView('calendar')">
+      <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>캘린더
+    </button>
+    <button class="tab-btn" id="tab-team" onclick="switchView('team')">
+      <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>팀 관리
+    </button>
+  </div>
+
+  <!-- EMAIL PANEL -->
   <div id="email-panel" class="hidden anim-slide bg-white rounded-xl shadow-sm overflow-hidden border border-violet-100">
-    <div class="flex items-center justify-between px-4 py-3 bg-gradient-to-r from-violet-50 to-purple-50 border-b border-violet-100">
-      <div class="flex items-center gap-2">
-        <span class="w-6 h-6 bg-violet-500 rounded-full flex items-center justify-center">
-          <svg class="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
-          </svg>
-        </span>
-        <h2 class="text-sm font-semibold text-violet-900">스마트 이메일 분석 &amp; 자동 등록</h2>
-        <span class="text-xs text-violet-400">이메일 본문을 붙여넣으면 항목을 자동 추출합니다</span>
-      </div>
-      <button onclick="toggleEmailPanel()" class="text-violet-300 hover:text-violet-600 transition-colors">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-        </svg>
-      </button>
+    <div class="flex items-center justify-between px-4 py-3 bg-violet-50 border-b border-violet-100">
+      <h2 class="text-sm font-semibold text-violet-900 flex items-center gap-2">
+        <span class="w-5 h-5 bg-violet-500 rounded-full flex items-center justify-center"><svg class="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg></span>
+        스마트 이메일 분석
+      </h2>
+      <button onclick="toggleEmailPanel()" class="text-violet-300 hover:text-violet-600"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button>
     </div>
     <div class="p-4 grid grid-cols-1 lg:grid-cols-2 gap-4">
-      <!-- LEFT: paste area -->
       <div class="space-y-2">
-        <label class="block text-xs font-medium text-slate-600">이메일 본문 붙여넣기</label>
-        <textarea id="email-text" rows="12"
-          placeholder="이메일 전체 내용을 여기에 붙여넣으세요.
-
-[예시 형식]
-제목: [ABC프로젝트] 웹사이트 개발 제안 요청
-발신: contact@abccorp.co.kr
-
-안녕하세요, ABC 주식회사입니다.
-웹사이트 리뉴얼 프로젝트 제안을 요청드립니다.
-
-기간: 2024.06.01 ~ 2024.11.30
-예상 공수: 6 MM"
-          class="w-full px-3 py-2 text-xs border border-slate-200 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-violet-400 font-mono leading-relaxed text-slate-700 placeholder-slate-300"></textarea>
-        <button onclick="analyzeAndPreview()"
-          class="w-full py-2 bg-violet-600 hover:bg-violet-500 text-white text-sm font-medium rounded-lg transition-colors flex items-center justify-center gap-2 shadow-sm">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
-          </svg>이메일 분석하기
-        </button>
+        <textarea id="email-text" rows="10" placeholder="이메일 전체 내용을 붙여넣으세요…"
+          class="w-full px-3 py-2 text-xs border border-slate-200 rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-violet-400 font-mono"></textarea>
+        <button onclick="analyzeAndPreview()" class="w-full py-2 bg-violet-600 hover:bg-violet-500 text-white text-sm font-medium rounded-lg transition-colors">이메일 분석하기</button>
       </div>
-      <!-- RIGHT: preview form -->
-      <div id="email-preview" class="hidden space-y-2.5">
-        <div class="flex items-center justify-between">
-          <label class="text-xs font-medium text-slate-600">추출된 정보 확인 &amp; 수정</label>
-          <span class="text-xs text-slate-400 bg-amber-50 text-amber-600 px-2 py-0.5 rounded-full">필드를 직접 수정할 수 있습니다</span>
-        </div>
+      <div id="email-preview" class="hidden space-y-2">
         <div class="grid grid-cols-2 gap-2">
-          <div>
-            <label class="block text-xs text-slate-500 mb-1">구분</label>
-            <select id="ep-type" class="w-full px-2 py-1.5 border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-violet-400 bg-white">
-              <option value="RFI">RFI (정보 요청)</option>
-              <option value="RFP">RFP (제안 요청)</option>
-              <option value="실행중인 프로젝트">실행중인 프로젝트</option>
-            </select>
-          </div>
-          <div>
-            <label class="block text-xs text-slate-500 mb-1">진행 상태</label>
-            <select id="ep-status" class="w-full px-2 py-1.5 border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-violet-400 bg-white">
-              <option value="대기">대기</option>
-              <option value="진행중">진행중</option>
-              <option value="완료">완료</option>
-            </select>
-          </div>
+          <div><label class="block text-xs text-slate-500 mb-1">구분</label><select id="ep-type" class="w-full px-2 py-1.5 border border-slate-200 rounded text-xs bg-white focus:outline-none focus:ring-1 focus:ring-violet-400"><option value="RFI">RFI</option><option value="RFP">RFP</option><option value="실행중인 프로젝트">실행중인 프로젝트</option></select></div>
+          <div><label class="block text-xs text-slate-500 mb-1">상태</label><select id="ep-status" class="w-full px-2 py-1.5 border border-slate-200 rounded text-xs bg-white focus:outline-none focus:ring-1 focus:ring-violet-400"><option>대기</option><option>진행중</option><option>완료</option></select></div>
         </div>
-        <div>
-          <label class="block text-xs text-slate-500 mb-1">프로젝트명 <span class="text-red-400">*</span></label>
-          <input type="text" id="ep-name" placeholder="프로젝트명"
-            class="w-full px-2 py-1.5 border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-violet-400">
-        </div>
-        <div>
-          <label class="block text-xs text-slate-500 mb-1">고객사 / 발주처</label>
-          <input type="text" id="ep-client" placeholder="고객사명"
-            class="w-full px-2 py-1.5 border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-violet-400">
-        </div>
+        <div><label class="block text-xs text-slate-500 mb-1">프로젝트명 *</label><input type="text" id="ep-name" class="w-full px-2 py-1.5 border border-slate-200 rounded text-xs focus:outline-none focus:ring-1 focus:ring-violet-400"></div>
+        <div><label class="block text-xs text-slate-500 mb-1">고객사</label><input type="text" id="ep-client" class="w-full px-2 py-1.5 border border-slate-200 rounded text-xs focus:outline-none focus:ring-1 focus:ring-violet-400"></div>
         <div class="grid grid-cols-3 gap-2">
-          <div>
-            <label class="block text-xs text-slate-500 mb-1">시작일</label>
-            <input type="date" id="ep-start" class="w-full px-2 py-1.5 border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-violet-400">
-          </div>
-          <div>
-            <label class="block text-xs text-slate-500 mb-1">종료일</label>
-            <input type="date" id="ep-end" class="w-full px-2 py-1.5 border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-violet-400">
-          </div>
-          <div>
-            <label class="block text-xs text-slate-500 mb-1">공수</label>
-            <div class="flex gap-1">
-              <input type="number" id="ep-effort" step="0.5" min="0" placeholder="0"
-                class="w-full px-2 py-1.5 border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-violet-400">
-              <select id="ep-unit" class="px-1 py-1.5 border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-violet-400 bg-white">
-                <option>MM</option><option>MD</option>
-              </select>
-            </div>
-          </div>
+          <div><label class="block text-xs text-slate-500 mb-1">시작일</label><input type="date" id="ep-start" class="w-full px-2 py-1.5 border border-slate-200 rounded text-xs focus:outline-none focus:ring-1 focus:ring-violet-400"></div>
+          <div><label class="block text-xs text-slate-500 mb-1">종료일</label><input type="date" id="ep-end" class="w-full px-2 py-1.5 border border-slate-200 rounded text-xs focus:outline-none focus:ring-1 focus:ring-violet-400"></div>
+          <div><label class="block text-xs text-slate-500 mb-1">공수</label><div class="flex gap-1"><input type="number" id="ep-effort" step="0.5" min="0" class="w-full px-2 py-1.5 border border-slate-200 rounded text-xs focus:outline-none focus:ring-1 focus:ring-violet-400"><select id="ep-unit" class="px-1 py-1.5 border border-slate-200 rounded text-xs bg-white"><option>MM</option><option>MD</option></select></div></div>
         </div>
-        <div>
-          <label class="block text-xs text-slate-500 mb-1">주요 내용 요약</label>
-          <textarea id="ep-summary" rows="4"
-            class="w-full px-2 py-1.5 border border-slate-200 rounded-lg text-xs resize-none focus:outline-none focus:ring-1 focus:ring-violet-400"></textarea>
-        </div>
-        <button onclick="registerFromEmail()"
-          class="w-full py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-medium rounded-lg transition-colors flex items-center justify-center gap-2 shadow-sm">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-          </svg>프로젝트 등록
+        <div><label class="block text-xs text-slate-500 mb-1">요약</label><textarea id="ep-summary" rows="3" class="w-full px-2 py-1.5 border border-slate-200 rounded text-xs resize-none focus:outline-none focus:ring-1 focus:ring-violet-400"></textarea></div>
+        <button onclick="registerFromEmail()" class="w-full py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-medium rounded-lg transition-colors">프로젝트 등록</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- VIEW: KANBAN -->
+  <div id="view-kanban" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <div class="bg-white rounded-xl shadow-sm overflow-hidden flex flex-col">
+      <div class="bg-blue-500 px-4 py-2.5 flex items-center justify-between"><div class="flex items-center gap-2"><span class="font-bold text-white text-sm">RFI</span><span class="text-blue-100 text-xs">정보 요청</span></div><span id="count-RFI" class="bg-white text-blue-600 text-xs font-bold px-2.5 py-0.5 rounded-full">0</span></div>
+      <div id="col-RFI" class="kanban-col flex-1 p-3 space-y-2 overflow-y-auto" ondragover="handleDragOver(event,'RFI')" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event,'RFI')"></div>
+    </div>
+    <div class="bg-white rounded-xl shadow-sm overflow-hidden flex flex-col">
+      <div class="bg-amber-500 px-4 py-2.5 flex items-center justify-between"><div class="flex items-center gap-2"><span class="font-bold text-white text-sm">RFP</span><span class="text-amber-100 text-xs">제안 요청</span></div><span id="count-RFP" class="bg-white text-amber-600 text-xs font-bold px-2.5 py-0.5 rounded-full">0</span></div>
+      <div id="col-RFP" class="kanban-col flex-1 p-3 space-y-2 overflow-y-auto" ondragover="handleDragOver(event,'RFP')" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event,'RFP')"></div>
+    </div>
+    <div class="bg-white rounded-xl shadow-sm overflow-hidden flex flex-col">
+      <div class="bg-emerald-500 px-4 py-2.5 flex items-center justify-between"><span class="font-bold text-white text-sm">실행중인 프로젝트</span><span id="count-실행중인 프로젝트" class="bg-white text-emerald-600 text-xs font-bold px-2.5 py-0.5 rounded-full">0</span></div>
+      <div id="col-실행중인 프로젝트" class="kanban-col flex-1 p-3 space-y-2 overflow-y-auto" ondragover="handleDragOver(event,'실행중인 프로젝트')" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event,'실행중인 프로젝트')"></div>
+    </div>
+  </div>
+
+  <!-- VIEW: GANTT -->
+  <div id="view-gantt" class="hidden bg-white rounded-xl shadow-sm overflow-hidden">
+    <div class="px-5 py-3 border-b border-slate-100 flex items-center justify-between flex-wrap gap-2">
+      <h2 class="font-semibold text-slate-700 text-sm">프로젝트 타임라인</h2>
+      <div class="flex items-center gap-3 text-xs text-slate-400">
+        <span class="flex items-center gap-1"><span class="w-3 h-3 rounded bg-blue-500 inline-block"></span>RFI</span>
+        <span class="flex items-center gap-1"><span class="w-3 h-3 rounded bg-amber-500 inline-block"></span>RFP</span>
+        <span class="flex items-center gap-1"><span class="w-3 h-3 rounded bg-emerald-500 inline-block"></span>실행중</span>
+        <span class="flex items-center gap-1"><span class="w-3 h-2 bg-red-400 inline-block"></span>오늘</span>
+      </div>
+    </div>
+    <div id="gantt-body" class="p-4 overflow-x-auto"></div>
+  </div>
+
+  <!-- VIEW: CALENDAR -->
+  <div id="view-calendar" class="hidden bg-white rounded-xl shadow-sm overflow-hidden">
+    <div class="px-5 py-3 border-b border-slate-100 flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <button onclick="moveMonth(-1)" class="p-1.5 hover:bg-slate-100 rounded-lg"><svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg></button>
+        <h2 id="cal-title" class="font-semibold text-slate-700 text-sm w-28 text-center"></h2>
+        <button onclick="moveMonth(1)" class="p-1.5 hover:bg-slate-100 rounded-lg"><svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg></button>
+        <button onclick="calYear=new Date().getFullYear();calMonth=new Date().getMonth();renderCalendar()" class="text-xs text-indigo-600 hover:underline ml-1">오늘</button>
+      </div>
+      <div class="flex items-center gap-3 text-xs text-slate-400">
+        <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded bg-blue-400 inline-block"></span>프로젝트</span>
+        <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-sm border-l-2 border-pink-400 bg-pink-50 inline-block"></span>개인일정</span>
+        <button onclick="openPersonalEventModal()" class="flex items-center gap-1 px-2.5 py-1 bg-pink-50 hover:bg-pink-100 text-pink-600 rounded-lg font-medium transition-colors">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>개인일정 추가
         </button>
       </div>
     </div>
+    <div class="p-4">
+      <div class="grid grid-cols-7 mb-1">
+        <div class="text-xs font-semibold text-red-400 text-center py-1">일</div>
+        <div class="text-xs font-semibold text-slate-500 text-center py-1">월</div>
+        <div class="text-xs font-semibold text-slate-500 text-center py-1">화</div>
+        <div class="text-xs font-semibold text-slate-500 text-center py-1">수</div>
+        <div class="text-xs font-semibold text-slate-500 text-center py-1">목</div>
+        <div class="text-xs font-semibold text-slate-500 text-center py-1">금</div>
+        <div class="text-xs font-semibold text-blue-400 text-center py-1">토</div>
+      </div>
+      <div id="cal-grid" class="grid grid-cols-7 gap-1"></div>
+    </div>
   </div>
 
-  <!-- KANBAN BOARD -->
-  <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-
-    <!-- RFI -->
-    <div class="bg-white rounded-xl shadow-sm overflow-hidden flex flex-col">
-      <div class="bg-blue-500 px-4 py-2.5 flex items-center justify-between">
-        <div class="flex items-center gap-2">
-          <span class="font-bold text-white text-sm">RFI</span>
-          <span class="text-blue-100 text-xs">정보 요청</span>
-        </div>
-        <span id="count-RFI" class="bg-white text-blue-600 text-xs font-bold px-2.5 py-0.5 rounded-full min-w-[1.5rem] text-center">0</span>
-      </div>
-      <div id="col-RFI" class="kanban-col flex-1 p-3 space-y-2 overflow-y-auto scrollbar-thin"
-        ondragover="handleDragOver(event,'RFI')" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event,'RFI')">
-      </div>
+  <!-- VIEW: TEAM -->
+  <div id="view-team" class="hidden space-y-4">
+    <div class="flex items-center justify-between">
+      <h2 class="text-sm font-semibold text-slate-600">팀원 목록</h2>
+      <button onclick="openMemberModal()" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-medium transition-colors">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>팀원 추가
+      </button>
     </div>
-
-    <!-- RFP -->
-    <div class="bg-white rounded-xl shadow-sm overflow-hidden flex flex-col">
-      <div class="bg-amber-500 px-4 py-2.5 flex items-center justify-between">
-        <div class="flex items-center gap-2">
-          <span class="font-bold text-white text-sm">RFP</span>
-          <span class="text-amber-100 text-xs">제안 요청</span>
-        </div>
-        <span id="count-RFP" class="bg-white text-amber-600 text-xs font-bold px-2.5 py-0.5 rounded-full min-w-[1.5rem] text-center">0</span>
-      </div>
-      <div id="col-RFP" class="kanban-col flex-1 p-3 space-y-2 overflow-y-auto scrollbar-thin"
-        ondragover="handleDragOver(event,'RFP')" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event,'RFP')">
-      </div>
-    </div>
-
-    <!-- 실행중인 프로젝트 -->
-    <div class="bg-white rounded-xl shadow-sm overflow-hidden flex flex-col">
-      <div class="bg-emerald-500 px-4 py-2.5 flex items-center justify-between">
-        <div class="flex items-center gap-2">
-          <span class="font-bold text-white text-sm">실행중인 프로젝트</span>
-        </div>
-        <span id="count-실행중인 프로젝트" class="bg-white text-emerald-600 text-xs font-bold px-2.5 py-0.5 rounded-full min-w-[1.5rem] text-center">0</span>
-      </div>
-      <div id="col-실행중인 프로젝트" class="kanban-col flex-1 p-3 space-y-2 overflow-y-auto scrollbar-thin"
-        ondragover="handleDragOver(event,'실행중인 프로젝트')" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event,'실행중인 프로젝트')">
-      </div>
-    </div>
-
+    <div id="team-stats" class="grid grid-cols-2 sm:grid-cols-4 gap-3"></div>
+    <div id="team-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3"></div>
   </div>
+
 </main>
 
-<!-- ===== MODAL ===== -->
+<!-- PROJECT MODAL -->
 <div id="project-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4">
-  <div class="modal-backdrop absolute inset-0" onclick="closeModal()"></div>
-  <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto anim-slide">
-    <!-- Modal Header -->
+  <div class="modal-backdrop absolute inset-0" onclick="closeModal('project')"></div>
+  <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[92vh] overflow-y-auto anim-slide">
     <div class="sticky top-0 bg-white z-10 flex items-center justify-between px-6 py-4 border-b border-slate-100">
-      <h2 id="modal-title" class="text-base font-bold text-slate-800">프로젝트 상세</h2>
-      <button onclick="closeModal()" class="text-slate-400 hover:text-slate-600 transition-colors">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-        </svg>
-      </button>
+      <h2 id="project-modal-title" class="text-base font-bold text-slate-800">프로젝트</h2>
+      <button onclick="closeModal('project')" class="text-slate-400 hover:text-slate-600"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button>
     </div>
-    <!-- Modal Body -->
     <div class="px-6 py-4 space-y-4">
       <div class="grid grid-cols-2 gap-3">
-        <div>
-          <label class="block text-xs font-medium text-slate-500 mb-1">구분 <span class="text-red-400">*</span></label>
+        <div><label class="block text-xs font-medium text-slate-500 mb-1">구분 *</label>
           <select id="m-type" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 bg-white">
-            <option value="RFI">RFI (정보 요청)</option>
-            <option value="RFP">RFP (제안 요청)</option>
-            <option value="실행중인 프로젝트">실행중인 프로젝트</option>
-          </select>
-        </div>
-        <div>
-          <label class="block text-xs font-medium text-slate-500 mb-1">진행 상태 <span class="text-red-400">*</span></label>
+            <option value="RFI">RFI (정보 요청)</option><option value="RFP">RFP (제안 요청)</option><option value="실행중인 프로젝트">실행중인 프로젝트</option>
+          </select></div>
+        <div><label class="block text-xs font-medium text-slate-500 mb-1">진행 상태 *</label>
           <select id="m-status" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 bg-white">
-            <option value="대기">대기</option>
-            <option value="진행중">진행중</option>
-            <option value="완료">완료</option>
-          </select>
-        </div>
+            <option>대기</option><option>진행중</option><option>완료</option>
+          </select></div>
       </div>
-      <div>
-        <label class="block text-xs font-medium text-slate-500 mb-1">프로젝트명 <span class="text-red-400">*</span></label>
-        <input type="text" id="m-name" placeholder="프로젝트 이름을 입력하세요"
-          class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400">
-      </div>
-      <div>
-        <label class="block text-xs font-medium text-slate-500 mb-1">고객사 / 발주처</label>
-        <input type="text" id="m-client" placeholder="고객사 또는 발주처"
-          class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400">
-      </div>
-      <div>
-        <label class="block text-xs font-medium text-slate-500 mb-1">주요 내용 요약</label>
-        <textarea id="m-summary" rows="3" placeholder="프로젝트 주요 내용을 간략히 입력하세요"
-          class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm resize-none focus:outline-none focus:ring-2 focus:ring-indigo-400"></textarea>
-      </div>
+      <div><label class="block text-xs font-medium text-slate-500 mb-1">프로젝트명 *</label>
+        <input type="text" id="m-name" placeholder="프로젝트명" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"></div>
+      <div><label class="block text-xs font-medium text-slate-500 mb-1">고객사 / 발주처</label>
+        <input type="text" id="m-client" placeholder="고객사" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"></div>
+      <div><label class="block text-xs font-medium text-slate-500 mb-1">주요 내용 요약</label>
+        <textarea id="m-summary" rows="3" placeholder="주요 내용" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm resize-none focus:outline-none focus:ring-2 focus:ring-indigo-400"></textarea></div>
       <div class="grid grid-cols-3 gap-3">
-        <div>
-          <label class="block text-xs font-medium text-slate-500 mb-1">시작일</label>
-          <input type="date" id="m-start"
-            class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400">
-        </div>
-        <div>
-          <label class="block text-xs font-medium text-slate-500 mb-1">종료일</label>
-          <input type="date" id="m-end"
-            class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400">
-        </div>
-        <div>
-          <label class="block text-xs font-medium text-slate-500 mb-1">예상 공수</label>
+        <div><label class="block text-xs font-medium text-slate-500 mb-1">시작일</label><input type="date" id="m-start" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"></div>
+        <div><label class="block text-xs font-medium text-slate-500 mb-1">종료일</label><input type="date" id="m-end" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"></div>
+        <div><label class="block text-xs font-medium text-slate-500 mb-1">예상 공수</label>
           <div class="flex gap-1">
-            <input type="number" id="m-effort" step="0.5" min="0" placeholder="0"
-              class="flex-1 min-w-0 px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400">
-            <select id="m-unit" class="px-2 py-2 border border-slate-200 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-indigo-400 bg-white">
-              <option>MM</option><option>MD</option>
+            <input type="number" id="m-effort" step="0.5" min="0" placeholder="0" class="flex-1 min-w-0 px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400">
+            <select id="m-unit" class="px-2 py-2 border border-slate-200 rounded-lg text-xs bg-white focus:outline-none"><option>MM</option><option>MD</option></select>
+          </div></div>
+      </div>
+      <!-- TEAM ASSIGNMENT -->
+      <div class="border border-slate-200 rounded-xl overflow-hidden">
+        <div class="flex items-center justify-between px-3 py-2 bg-slate-50 border-b border-slate-200">
+          <span class="text-xs font-semibold text-slate-600">팀원 배정</span>
+          <div class="flex items-center gap-2">
+            <select id="member-pick" class="px-2 py-1 border border-slate-200 rounded text-xs bg-white focus:outline-none">
+              <option value="">-- 팀원 선택 --</option>
             </select>
+            <button onclick="addAssignment()" class="text-xs text-indigo-600 hover:text-indigo-800 font-medium px-2 py-1 bg-indigo-50 hover:bg-indigo-100 rounded transition-colors">추가</button>
+            <button onclick="addCustomAssignment()" class="text-xs text-slate-500 hover:text-slate-700 font-medium px-2 py-1 bg-slate-100 hover:bg-slate-200 rounded transition-colors">직접입력</button>
           </div>
         </div>
+        <div id="modal-assignments" class="divide-y divide-slate-100 max-h-44 overflow-y-auto"></div>
+        <div class="px-3 py-1.5 bg-slate-50 border-t border-slate-200 flex justify-between text-xs">
+          <span class="text-slate-400">총 배정 공수</span>
+          <span id="modal-assign-total" class="font-bold text-indigo-600">0 MM</span>
+        </div>
       </div>
-      <div>
-        <label class="block text-xs font-medium text-slate-500 mb-1">원본 이메일 내용</label>
-        <textarea id="m-email" rows="5" placeholder="원본 이메일 내용 (선택사항)"
-          class="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs resize-none focus:outline-none focus:ring-2 focus:ring-indigo-400 font-mono leading-relaxed"></textarea>
-      </div>
+      <div><label class="block text-xs font-medium text-slate-500 mb-1">원본 이메일</label>
+        <textarea id="m-email" rows="3" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-xs resize-none focus:outline-none focus:ring-2 focus:ring-indigo-400 font-mono"></textarea></div>
       <div id="m-meta" class="hidden bg-slate-50 rounded-lg px-3 py-2 grid grid-cols-2 gap-1 text-xs text-slate-400">
-        <span>등록일: <span id="m-created" class="text-slate-500"></span></span>
-        <span>최종 수정: <span id="m-updated" class="text-slate-500"></span></span>
+        <span>등록일: <span id="m-created"></span></span><span>수정일: <span id="m-updated"></span></span>
       </div>
     </div>
-    <!-- Modal Footer -->
     <div class="sticky bottom-0 bg-white border-t border-slate-100 px-6 py-3 flex items-center justify-between">
-      <button id="btn-delete" onclick="deleteCurrentProject()"
-        class="hidden items-center gap-1.5 px-4 py-2 bg-red-50 hover:bg-red-100 text-red-600 text-sm font-medium rounded-lg transition-colors">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-        </svg>삭제
+      <button id="btn-delete" onclick="deleteCurrentProject()" class="hidden items-center gap-1.5 px-4 py-2 bg-red-50 hover:bg-red-100 text-red-600 text-sm font-medium rounded-lg transition-colors">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>삭제
       </button>
       <div class="flex gap-2 ml-auto">
-        <button onclick="closeModal()" class="px-4 py-2 text-slate-500 hover:bg-slate-100 text-sm font-medium rounded-lg transition-colors">취소</button>
-        <button onclick="saveModal()" class="px-5 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold rounded-lg transition-colors shadow-sm flex items-center gap-1.5">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-          </svg>저장
+        <button onclick="closeModal('project')" class="px-4 py-2 text-slate-500 hover:bg-slate-100 text-sm font-medium rounded-lg transition-colors">취소</button>
+        <button onclick="saveProjectModal()" class="px-5 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold rounded-lg transition-colors flex items-center gap-1.5">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>저장
         </button>
       </div>
     </div>
   </div>
 </div>
 
-<!-- TOAST -->
+<!-- MEMBER MODAL -->
+<div id="member-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4">
+  <div class="modal-backdrop absolute inset-0" onclick="closeModal('member')"></div>
+  <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-md anim-slide">
+    <div class="flex items-center justify-between px-6 py-4 border-b border-slate-100">
+      <h2 id="member-modal-title" class="text-base font-bold text-slate-800">팀원</h2>
+      <button onclick="closeModal('member')" class="text-slate-400 hover:text-slate-600"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button>
+    </div>
+    <div class="px-6 py-4 space-y-3">
+      <div class="grid grid-cols-2 gap-3">
+        <div><label class="block text-xs font-medium text-slate-500 mb-1">이름 *</label><input type="text" id="mm-name" placeholder="홍길동" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-400"></div>
+        <div><label class="block text-xs font-medium text-slate-500 mb-1">직책 / 역할</label><input type="text" id="mm-role" placeholder="개발, PM, 디자이너…" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-400"></div>
+      </div>
+      <div class="grid grid-cols-2 gap-3">
+        <div><label class="block text-xs font-medium text-slate-500 mb-1">팀</label><input type="text" id="mm-team" placeholder="개발팀" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-400"></div>
+        <div><label class="block text-xs font-medium text-slate-500 mb-1">이메일</label><input type="email" id="mm-email" placeholder="hong@company.com" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-400"></div>
+      </div>
+      <div><label class="block text-xs font-medium text-slate-500 mb-1">월 가용 공수 (MM)</label><input type="number" id="mm-capacity" step="0.5" min="0.1" max="3" value="1" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-400"></div>
+      <div><label class="block text-xs font-medium text-slate-500 mb-1">메모</label><textarea id="mm-memo" rows="2" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm resize-none focus:outline-none focus:ring-2 focus:ring-emerald-400"></textarea></div>
+    </div>
+    <div class="px-6 py-3 border-t border-slate-100 flex items-center justify-between">
+      <button id="mm-delete" onclick="deleteCurrentMember()" class="hidden items-center gap-1.5 px-4 py-2 bg-red-50 hover:bg-red-100 text-red-600 text-sm font-medium rounded-lg transition-colors">삭제</button>
+      <div class="flex gap-2 ml-auto">
+        <button onclick="closeModal('member')" class="px-4 py-2 text-slate-500 hover:bg-slate-100 text-sm rounded-lg transition-colors">취소</button>
+        <button onclick="saveMemberModal()" class="px-5 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-semibold rounded-lg transition-colors">저장</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PERSONAL EVENT MODAL -->
+<div id="personal-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4">
+  <div class="modal-backdrop absolute inset-0" onclick="closeModal('personal')"></div>
+  <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-md anim-slide">
+    <div class="flex items-center justify-between px-6 py-4 border-b border-slate-100">
+      <h2 id="personal-modal-title" class="text-base font-bold text-slate-800">개인 일정</h2>
+      <button onclick="closeModal('personal')" class="text-slate-400 hover:text-slate-600"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button>
+    </div>
+    <div class="px-6 py-4 space-y-3">
+      <div><label class="block text-xs font-medium text-slate-500 mb-1">제목 *</label><input type="text" id="pe-title" placeholder="일정 제목" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-pink-400"></div>
+      <div class="grid grid-cols-2 gap-3">
+        <div><label class="block text-xs font-medium text-slate-500 mb-1">유형</label>
+          <select id="pe-type" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-pink-400 bg-white">
+            <option value="개인">개인</option><option value="휴가">휴가</option><option value="출장">출장</option><option value="회의">회의</option><option value="기념일">기념일</option><option value="기타">기타</option>
+          </select></div>
+        <div><label class="block text-xs font-medium text-slate-500 mb-1">색상</label><div class="flex items-center gap-2"><input type="color" id="pe-color" value="#ec4899"><span class="text-xs text-slate-400">클릭하여 변경</span></div></div>
+      </div>
+      <div class="grid grid-cols-2 gap-3">
+        <div><label class="block text-xs font-medium text-slate-500 mb-1">시작일 *</label><input type="date" id="pe-start" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-pink-400"></div>
+        <div><label class="block text-xs font-medium text-slate-500 mb-1">종료일</label><input type="date" id="pe-end" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-pink-400"></div>
+      </div>
+      <div><label class="block text-xs font-medium text-slate-500 mb-1">메모</label><textarea id="pe-memo" rows="2" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm resize-none focus:outline-none focus:ring-2 focus:ring-pink-400"></textarea></div>
+    </div>
+    <div class="px-6 py-3 border-t border-slate-100 flex items-center justify-between">
+      <button id="pe-delete" onclick="deleteCurrentPersonalEvent()" class="hidden items-center gap-1.5 px-4 py-2 bg-red-50 hover:bg-red-100 text-red-600 text-sm font-medium rounded-lg transition-colors">삭제</button>
+      <div class="flex gap-2 ml-auto">
+        <button onclick="closeModal('personal')" class="px-4 py-2 text-slate-500 hover:bg-slate-100 text-sm rounded-lg transition-colors">취소</button>
+        <button onclick="savePersonalEventModal()" class="px-5 py-2 bg-pink-600 hover:bg-pink-500 text-white text-sm font-semibold rounded-lg transition-colors">저장</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div id="toast-container" class="fixed bottom-5 right-5 z-50 space-y-2 pointer-events-none"></div>
 
 <script>
-// =====================================================================
-// STATE
-// =====================================================================
-const STORAGE_KEY = 'pm_data_v1';
-let state = { projects: [] };
+// ─────────────────────────────────────────────
+// STATE  (3 separate data stores)
+// ─────────────────────────────────────────────
+const SK = { projects:'kobis_projects', members:'kobis_members', personal:'kobis_personal' };
+let projects = [];
+let members  = [];
+let personal = [];   // personal calendar events
+
 let draggedId = null;
-let currentModalId = null;
-let searchTerm = '';
-let statusFilter = '';
+let currentView = 'kanban';
+let calYear = new Date().getFullYear();
+let calMonth = new Date().getMonth();
 
-// =====================================================================
+// modal temp state
+let currentProjectId = null;
+let currentMemberId = null;
+let currentPersonalId = null;
+let modalAssignments = [];  // temp assignments while project modal is open
+
+// ─────────────────────────────────────────────
 // UTILS
-// =====================================================================
-const uid = () => 'p_' + Date.now() + '_' + Math.random().toString(36).slice(2,9);
-const nowISO = () => new Date().toISOString();
+// ─────────────────────────────────────────────
+const uid = () => 'id_' + Date.now() + '_' + Math.random().toString(36).slice(2,8);
+const now = () => new Date().toISOString();
+function esc(s){ return s ? String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;') : ''; }
+function fmtDate(iso){ if(!iso) return '-'; try{ return new Date(iso).toLocaleDateString('ko-KR',{year:'numeric',month:'2-digit',day:'2-digit'}); }catch{ return iso; } }
+function fmtShort(d){ if(!d) return '미정'; const dt=new Date(d); return `${dt.getMonth()+1}/${dt.getDate()}`; }
+function searchTerm(){ return document.getElementById('search-input').value.toLowerCase(); }
+function statusFilter(){ return document.getElementById('status-filter').value; }
 
-function esc(s) {
-  if (!s) return '';
-  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
-
-function fmtDate(iso) {
-  if (!iso) return '-';
-  try { return new Date(iso).toLocaleDateString('ko-KR',{year:'numeric',month:'2-digit',day:'2-digit'}); }
-  catch { return iso; }
-}
-
-function fmtShort(d) {
-  if (!d) return '미정';
-  const dt = new Date(d);
-  return `${dt.getMonth()+1}/${dt.getDate()}`;
-}
-
-// =====================================================================
+// ─────────────────────────────────────────────
 // STORAGE
-// =====================================================================
-function load() {
-  try {
-    const s = localStorage.getItem(STORAGE_KEY);
-    if (s) { state = JSON.parse(s); if (!state.projects) state.projects = []; }
-  } catch { state = { projects: [] }; }
+// ─────────────────────────────────────────────
+function loadAll(){
+  try{ const d=localStorage.getItem(SK.projects); if(d) projects=JSON.parse(d); }catch{}
+  try{ const d=localStorage.getItem(SK.members);  if(d) members=JSON.parse(d);  }catch{}
+  try{ const d=localStorage.getItem(SK.personal); if(d) personal=JSON.parse(d); }catch{}
 }
+function saveProjects(){ localStorage.setItem(SK.projects, JSON.stringify(projects)); }
+function saveMembers(){  localStorage.setItem(SK.members,  JSON.stringify(members));  }
+function savePersonal(){ localStorage.setItem(SK.personal, JSON.stringify(personal)); }
 
-function save() { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
-
-// =====================================================================
-// CRUD
-// =====================================================================
-function createProject(d) {
-  const p = {
-    id: uid(), type: d.type||'RFI', name: d.name||'제목 없음',
-    client: d.client||'', summary: d.summary||'',
-    effort: parseFloat(d.effort)||0, effortUnit: d.effortUnit||'MM',
-    startDate: d.startDate||'', endDate: d.endDate||'',
-    status: d.status||'대기', emailContent: d.emailContent||'',
-    createdAt: nowISO(), updatedAt: nowISO()
+// ─────────────────────────────────────────────
+// FILE I/O
+// ─────────────────────────────────────────────
+function exportFile(type){
+  let data, filename;
+  if(type==='projects'){ data={version:'1.0',exported:now(),projects}; filename='projects.json'; }
+  else if(type==='members'){ data={version:'1.0',exported:now(),members}; filename='members.json'; }
+  else{ data={version:'1.0',exported:now(),personalEvents:personal}; filename='personal_calendar.json'; }
+  const blob = new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href=url; a.download=filename;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
+  showToast(`${filename} 저장 완료`,'success');
+}
+function importFile(e, type){
+  const file = e.target.files[0]; if(!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    try{
+      const data = JSON.parse(ev.target.result);
+      if(type==='projects'){
+        if(!Array.isArray(data.projects)) throw new Error();
+        projects = data.projects; saveProjects();
+        showToast(`프로젝트 ${projects.length}개 불러옴`,'success');
+      } else if(type==='members'){
+        if(!Array.isArray(data.members)) throw new Error();
+        members = data.members; saveMembers();
+        showToast(`팀원 ${members.length}명 불러옴`,'success');
+      } else {
+        const ev2 = data.personalEvents||data.events||[];
+        if(!Array.isArray(ev2)) throw new Error();
+        personal = ev2; savePersonal();
+        showToast(`개인일정 ${personal.length}개 불러옴`,'success');
+      }
+      renderAll();
+    } catch{ showToast('파일 형식이 맞지 않습니다','error'); }
   };
-  state.projects.push(p);
-  save(); renderAll(); return p;
+  reader.readAsText(file,'UTF-8');
+  e.target.value='';
 }
 
-function updateProject(id, d) {
-  const i = state.projects.findIndex(p => p.id === id);
-  if (i < 0) return;
-  state.projects[i] = { ...state.projects[i], ...d, id, createdAt: state.projects[i].createdAt, updatedAt: nowISO() };
-  save(); renderAll();
-}
-
-function deleteProject(id) {
-  state.projects = state.projects.filter(p => p.id !== id);
-  save(); renderAll();
-}
-
-// =====================================================================
+// ─────────────────────────────────────────────
 // FILTER
-// =====================================================================
-function filtered() {
-  const q = searchTerm.toLowerCase();
-  return state.projects.filter(p => {
-    const ms = !q || p.name.toLowerCase().includes(q) || (p.client||'').toLowerCase().includes(q) || (p.summary||'').toLowerCase().includes(q);
-    const mf = !statusFilter || p.status === statusFilter;
+// ─────────────────────────────────────────────
+function filtered(){
+  const q = searchTerm(); const sf = statusFilter();
+  return projects.filter(p=>{
+    const ms = !q || p.name.toLowerCase().includes(q) || (p.client||'').toLowerCase().includes(q);
+    const mf = !sf || p.status === sf;
     return ms && mf;
   });
 }
-
-function handleSearch(v) { searchTerm = v; renderKanban(); updateCount(); }
-function handleFilter(v) { statusFilter = v; renderKanban(); updateCount(); }
-
-function updateCount() {
-  const el = document.getElementById('filter-count');
-  const t = state.projects.length, f = filtered().length;
-  el.textContent = (searchTerm || statusFilter) ? `${f} / ${t} 건` : `총 ${t} 건`;
+function handleSearch(){ renderKanban(); if(currentView==='gantt') renderGantt(); updateCount(); }
+function handleFilter(){ renderKanban(); if(currentView==='gantt') renderGantt(); updateCount(); }
+function updateCount(){
+  const el=document.getElementById('filter-count');
+  const t=projects.length, f=filtered().length;
+  el.textContent = (searchTerm()||statusFilter()) ? `${f} / ${t} 건` : `총 ${t} 건`;
 }
 
-// =====================================================================
+// ─────────────────────────────────────────────
+// VIEW SWITCHING
+// ─────────────────────────────────────────────
+function switchView(v){
+  currentView=v;
+  ['kanban','gantt','calendar','team'].forEach(n=>{
+    document.getElementById('view-'+n).classList.toggle('hidden', n!==v);
+    document.getElementById('tab-'+n).classList.toggle('active', n===v);
+  });
+  if(v==='gantt') renderGantt();
+  if(v==='calendar') renderCalendar();
+  if(v==='team') renderTeam();
+}
+
+// ─────────────────────────────────────────────
 // RENDER ALL
-// =====================================================================
-function renderAll() { renderDashboard(); renderKanban(); updateCount(); }
+// ─────────────────────────────────────────────
+function renderAll(){
+  renderDashboard(); renderKanban(); updateCount();
+  if(currentView==='gantt') renderGantt();
+  if(currentView==='calendar') renderCalendar();
+  if(currentView==='team') renderTeam();
+}
 
-// =====================================================================
+// ─────────────────────────────────────────────
 // DASHBOARD
-// =====================================================================
-function renderDashboard() {
-  const ps = state.projects;
-  const rfi = ps.filter(p=>p.type==='RFI').length;
-  const rfp = ps.filter(p=>p.type==='RFP').length;
-  const run = ps.filter(p=>p.type==='실행중인 프로젝트').length;
-  const mm = ps.reduce((s,p)=> s + (p.effortUnit==='MD' ? p.effort/20 : p.effort), 0);
-  const ing = ps.filter(p=>p.status==='진행중').length;
-
+// ─────────────────────────────────────────────
+function renderDashboard(){
+  const mm = projects.reduce((s,p)=>s+(p.effortUnit==='MD'?p.effort/20:p.effort),0);
   document.getElementById('dashboard').innerHTML = [
-    card('전체 프로젝트', ps.length, '건', '#6366F1',
-      'M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10'),
-    card('RFI', rfi, '건', '#3B82F6',
-      'M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z'),
-    card('RFP', rfp, '건', '#F59E0B',
-      'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z'),
-    card('실행중인 프로젝트', run, '건', '#10B981',
-      'M13 10V3L4 14h7v7l9-11h-7z'),
-    card('총 예상 공수', mm.toFixed(1), 'MM', '#8B5CF6',
-      'M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z'),
+    statCard('전체',projects.length,'건','#6366F1','M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10'),
+    statCard('RFI',projects.filter(p=>p.type==='RFI').length,'건','#3B82F6','M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z'),
+    statCard('RFP',projects.filter(p=>p.type==='RFP').length,'건','#F59E0B','M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z'),
+    statCard('실행중',projects.filter(p=>p.type==='실행중인 프로젝트').length,'건','#10B981','M13 10V3L4 14h7v7l9-11h-7z'),
+    statCard('총 공수',mm.toFixed(1),'MM','#8B5CF6','M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z'),
   ].join('');
 }
-
-function card(label, val, unit, color, path) {
+function statCard(label,val,unit,color,path){
   return `<div class="bg-white rounded-xl px-4 py-3 shadow-sm flex items-center gap-3 border-l-4" style="border-color:${color}">
     <div class="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0" style="background:${color}1a">
       <svg class="w-5 h-5" fill="none" stroke="${color}" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="${path}"/></svg>
     </div>
-    <div><p class="text-xs text-slate-500">${label}</p>
-    <p class="text-xl font-bold text-slate-800 leading-tight">${val} <span class="text-sm font-normal text-slate-400">${unit}</span></p></div>
+    <div><p class="text-xs text-slate-500">${label}</p><p class="text-xl font-bold text-slate-800 leading-tight">${val} <span class="text-sm font-normal text-slate-400">${unit}</span></p></div>
   </div>`;
 }
 
-// =====================================================================
+// ─────────────────────────────────────────────
 // KANBAN
-// =====================================================================
-function renderKanban() {
-  const cols = { 'RFI':[], 'RFP':[], '실행중인 프로젝트':[] };
-  filtered().forEach(p => { if (cols[p.type]) cols[p.type].push(p); });
-
-  ['RFI','RFP','실행중인 프로젝트'].forEach(type => {
-    const col = document.getElementById('col-' + type);
-    const cnt = document.getElementById('count-' + type);
-    const total = state.projects.filter(p=>p.type===type).length;
-    cnt.textContent = total;
-    col.innerHTML = cols[type].length ? cols[type].map(renderCard).join('') : emptyState();
+// ─────────────────────────────────────────────
+function renderKanban(){
+  const cols={'RFI':[],'RFP':[],'실행중인 프로젝트':[]};
+  filtered().forEach(p=>{ if(cols[p.type]) cols[p.type].push(p); });
+  ['RFI','RFP','실행중인 프로젝트'].forEach(t=>{
+    document.getElementById('col-'+t).innerHTML = cols[t].length ? cols[t].map(renderCard).join('') : emptyKanban();
+    document.getElementById('count-'+t).textContent = projects.filter(p=>p.type===t).length;
   });
 }
-
-function emptyState() {
-  return `<div class="flex flex-col items-center justify-center py-10 text-slate-300 select-none">
-    <svg class="w-8 h-8 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
-    </svg>
-    <p class="text-xs">프로젝트가 없습니다</p>
-    <p class="text-xs mt-0.5">여기로 카드를 드래그하세요</p>
-  </div>`;
+function emptyKanban(){
+  return `<div class="flex flex-col items-center justify-center py-10 text-slate-300 select-none text-xs">카드를 드래그하세요</div>`;
 }
-
-function renderCard(p) {
-  const sColor = { '대기':'bg-slate-100 text-slate-500', '진행중':'bg-blue-100 text-blue-700', '완료':'bg-emerald-100 text-emerald-700' };
-  const lColor = { 'RFI':'border-blue-400', 'RFP':'border-amber-400', '실행중인 프로젝트':'border-emerald-400' };
-  const dd = dDay(p);
-
-  const moveBtns = ['RFI','RFP','실행중인 프로젝트']
-    .filter(t => t !== p.type)
-    .map(t => {
-      const short = t === '실행중인 프로젝트' ? '실행' : t;
-      const bc = t==='RFI' ? 'bg-blue-50 hover:bg-blue-100 text-blue-600' : t==='RFP' ? 'bg-amber-50 hover:bg-amber-100 text-amber-600' : 'bg-emerald-50 hover:bg-emerald-100 text-emerald-600';
-      return `<button onclick="moveCard(event,'${p.id}','${t}')" class="text-xs px-2 py-0.5 rounded ${bc} transition-colors font-medium">→ ${short}</button>`;
-    }).join('');
-
-  return `<div class="project-card bg-white border border-slate-200 rounded-xl p-3 border-l-4 ${lColor[p.type]||''}"
-    draggable="true" ondragstart="dragStart(event,'${p.id}')" ondragend="dragEnd(event)"
-    onclick="openEditModal('${p.id}')">
+function renderCard(p){
+  const sc={'대기':'bg-slate-100 text-slate-500','진행중':'bg-blue-100 text-blue-700','완료':'bg-emerald-100 text-emerald-700'};
+  const lc={'RFI':'border-blue-400','RFP':'border-amber-400','실행중인 프로젝트':'border-emerald-400'};
+  const dd=dDay(p);
+  const assigns=(p.assignments||[]);
+  const moveBtns=['RFI','RFP','실행중인 프로젝트'].filter(t=>t!==p.type).map(t=>{
+    const s=t==='실행중인 프로젝트'?'실행':t;
+    const bc=t==='RFI'?'bg-blue-50 hover:bg-blue-100 text-blue-600':t==='RFP'?'bg-amber-50 hover:bg-amber-100 text-amber-600':'bg-emerald-50 hover:bg-emerald-100 text-emerald-600';
+    return `<button onclick="moveCard(event,'${p.id}','${t}')" class="text-xs px-2 py-0.5 rounded ${bc} transition-colors font-medium">→ ${s}</button>`;
+  }).join('');
+  return `<div class="project-card bg-white border border-slate-200 rounded-xl p-3 border-l-4 ${lc[p.type]||''}"
+    draggable="true" ondragstart="dragStart(event,'${p.id}')" ondragend="dragEnd(event)" onclick="openEditModal('${p.id}')">
     <div class="flex items-start justify-between gap-2 mb-1.5">
-      <h3 class="text-sm font-semibold text-slate-800 leading-snug flex-1">${esc(p.name)}</h3>
-      <span class="text-xs px-1.5 py-0.5 rounded-full font-medium flex-shrink-0 ${sColor[p.status]||'bg-slate-100 text-slate-500'}">${p.status}</span>
+      <h3 class="text-sm font-semibold text-slate-800 leading-snug flex-1 line-clamp-2">${esc(p.name)}</h3>
+      <span class="text-xs px-1.5 py-0.5 rounded-full font-medium flex-shrink-0 ${sc[p.status]||''}">${p.status}</span>
     </div>
-    ${p.client ? `<p class="text-xs text-slate-400 mb-1.5 flex items-center gap-1">
-      <svg class="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
-      <span class="truncate">${esc(p.client)}</span></p>` : ''}
-    ${p.summary ? `<p class="text-xs text-slate-400 mb-2 line-clamp-2 leading-relaxed">${esc(p.summary)}</p>` : ''}
+    ${p.client?`<p class="text-xs text-slate-400 mb-1.5 truncate">🏢 ${esc(p.client)}</p>`:''}
+    ${p.summary?`<p class="text-xs text-slate-400 mb-2 line-clamp-2 leading-relaxed">${esc(p.summary)}</p>`:''}
     <div class="flex items-center justify-between text-xs text-slate-400 pt-2 border-t border-slate-50">
-      <span class="flex items-center gap-1">
-        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-        ${fmtShort(p.startDate)} ${p.endDate ? '~ '+fmtShort(p.endDate) : ''}
-      </span>
-      <span class="flex items-center gap-1">
-        ${p.effort ? `<svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>${p.effort} ${p.effortUnit}` : '공수 미정'}
-      </span>
+      <span>${fmtShort(p.startDate)} ${p.endDate?'~ '+fmtShort(p.endDate):''}</span>
+      <span>${p.effort?`${p.effort} ${p.effortUnit}`:'공수 미정'}</span>
     </div>
-    ${dd ? `<div class="mt-1.5 text-xs ${dd.cls} flex items-center gap-1 font-medium">
-      <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>${dd.txt}
-    </div>` : ''}
+    ${assigns.length?`<div class="mt-1.5 flex flex-wrap gap-1">${assigns.slice(0,3).map(a=>`<span class="text-xs bg-indigo-50 text-indigo-600 px-1.5 py-0.5 rounded-full">${esc(a.name)}</span>`).join('')}${assigns.length>3?`<span class="text-xs text-slate-400">+${assigns.length-3}</span>`:''}</div>`:''}
+    ${dd?`<div class="mt-1.5 text-xs ${dd.cls} font-medium">${dd.txt}</div>`:''}
     <div class="mt-2 flex gap-1 flex-wrap">${moveBtns}</div>
   </div>`;
 }
-
-function dDay(p) {
-  if (!p.endDate || p.status === '완료') return null;
-  const today = new Date(); today.setHours(0,0,0,0);
-  const end = new Date(p.endDate);
-  const diff = Math.ceil((end - today) / 86400000);
-  if (diff < 0) return { txt: `${Math.abs(diff)}일 지연`, cls: 'text-red-500' };
-  if (diff === 0) return { txt: '오늘 마감', cls: 'text-red-500' };
-  if (diff <= 7) return { txt: `D-${diff}`, cls: 'text-amber-500' };
-  if (diff <= 30) return { txt: `D-${diff}`, cls: 'text-blue-400' };
+function dDay(p){
+  if(!p.endDate||p.status==='완료') return null;
+  const today=new Date(); today.setHours(0,0,0,0);
+  const diff=Math.ceil((new Date(p.endDate)-today)/86400000);
+  if(diff<0)  return{txt:`${Math.abs(diff)}일 지연`,cls:'text-red-500'};
+  if(diff===0)return{txt:'오늘 마감',cls:'text-red-500'};
+  if(diff<=7) return{txt:`D-${diff}`,cls:'text-amber-500'};
+  if(diff<=30)return{txt:`D-${diff}`,cls:'text-blue-400'};
   return null;
 }
 
-// =====================================================================
+// ─────────────────────────────────────────────
 // DRAG & DROP
-// =====================================================================
-function dragStart(e, id) {
-  draggedId = id;
-  e.dataTransfer.effectAllowed = 'move';
-  setTimeout(() => e.target.classList.add('card-dragging'), 0);
+// ─────────────────────────────────────────────
+function dragStart(e,id){ draggedId=id; e.dataTransfer.effectAllowed='move'; setTimeout(()=>e.target.classList.add('card-dragging'),0); }
+function dragEnd(e){ e.target.classList.remove('card-dragging'); document.querySelectorAll('.drop-active').forEach(el=>el.classList.remove('drop-active')); }
+function handleDragOver(e,t){ e.preventDefault(); e.dataTransfer.dropEffect='move'; e.currentTarget.classList.add('drop-active'); }
+function handleDragLeave(e){ if(!e.currentTarget.contains(e.relatedTarget)) e.currentTarget.classList.remove('drop-active'); }
+function handleDrop(e,type){
+  e.preventDefault(); e.currentTarget.classList.remove('drop-active');
+  if(!draggedId) return;
+  const p=projects.find(x=>x.id===draggedId);
+  if(p&&p.type!==type){ p.type=type; p.updatedAt=now(); saveProjects(); renderAll(); showToast(`→ ${type}`,'success'); }
+  draggedId=null;
 }
-function dragEnd(e) {
-  e.target.classList.remove('card-dragging');
-  document.querySelectorAll('.drop-active').forEach(el => el.classList.remove('drop-active'));
-}
-function handleDragOver(e, type) {
-  e.preventDefault(); e.dataTransfer.dropEffect = 'move';
-  e.currentTarget.classList.add('drop-active');
-}
-function handleDragLeave(e) {
-  if (!e.currentTarget.contains(e.relatedTarget))
-    e.currentTarget.classList.remove('drop-active');
-}
-function handleDrop(e, type) {
-  e.preventDefault();
-  e.currentTarget.classList.remove('drop-active');
-  if (!draggedId) return;
-  const p = state.projects.find(x => x.id === draggedId);
-  if (p && p.type !== type) {
-    updateProject(draggedId, { type });
-    showToast(`"${p.name}" → ${type}`, 'success');
-  }
-  draggedId = null;
-}
-function moveCard(e, id, type) {
-  e.stopPropagation();
-  const p = state.projects.find(x => x.id === id);
-  if (p) { updateProject(id, { type }); showToast(`"${p.name}" → ${type}`, 'success'); }
-}
+function moveCard(e,id,type){ e.stopPropagation(); const p=projects.find(x=>x.id===id); if(p){ p.type=type; p.updatedAt=now(); saveProjects(); renderAll(); showToast(`→ ${type}`,'success'); } }
 
-// =====================================================================
-// MODAL
-// =====================================================================
-function openCreateModal(prefill) {
-  currentModalId = null;
-  document.getElementById('modal-title').textContent = '새 프로젝트 등록';
-  const f = prefill || {};
-  document.getElementById('m-type').value = f.type || 'RFI';
-  document.getElementById('m-status').value = f.status || '대기';
-  document.getElementById('m-name').value = f.name || '';
-  document.getElementById('m-client').value = f.client || '';
-  document.getElementById('m-summary').value = f.summary || '';
-  document.getElementById('m-start').value = f.startDate || '';
-  document.getElementById('m-end').value = f.endDate || '';
-  document.getElementById('m-effort').value = f.effort || '';
-  document.getElementById('m-unit').value = f.effortUnit || 'MM';
-  document.getElementById('m-email').value = f.emailContent || '';
-  document.getElementById('m-meta').classList.add('hidden');
-  const btn = document.getElementById('btn-delete');
-  btn.classList.add('hidden'); btn.style.display = '';
-  showModal();
+// ─────────────────────────────────────────────
+// GANTT
+// ─────────────────────────────────────────────
+function renderGantt(){
+  const ps=filtered().filter(p=>p.startDate||p.endDate);
+  const el=document.getElementById('gantt-body');
+  if(!ps.length){ el.innerHTML=`<p class="text-center text-slate-400 py-16 text-sm">일정이 등록된 프로젝트가 없습니다.</p>`; return; }
+  let minD=new Date(),maxD=new Date();
+  ps.forEach(p=>{ if(p.startDate){const d=new Date(p.startDate);if(d<minD)minD=d;} if(p.endDate){const d=new Date(p.endDate);if(d>maxD)maxD=d;} });
+  minD=new Date(minD.getFullYear(),minD.getMonth()-1,1);
+  maxD=new Date(maxD.getFullYear(),maxD.getMonth()+2,0);
+  const totalMs=maxD-minD;
+  const months=[]; let cur=new Date(minD.getFullYear(),minD.getMonth(),1);
+  while(cur<=maxD){ months.push(new Date(cur)); cur=new Date(cur.getFullYear(),cur.getMonth()+1,1); }
+  const todayPct=Math.max(0,Math.min(100,((new Date())-minD)/totalMs*100));
+  const tc={'RFI':'#3B82F6','RFP':'#F59E0B','실행중인 프로젝트':'#10B981'};
+  const sa={'완료':'bb','진행중':'ff','대기':'88'};
+  const LW=180;
+  let html=`<div style="min-width:${LW+months.length*90}px">`;
+  html+=`<div class="flex mb-1" style="padding-left:${LW}px">`;
+  months.forEach(m=>{ html+=`<div class="text-xs text-slate-400 font-medium flex-shrink-0 text-center" style="width:${(1/months.length*100).toFixed(2)}%;min-width:80px">${m.getFullYear()}.${String(m.getMonth()+1).padStart(2,'0')}</div>`; });
+  html+=`</div><div class="relative">`;
+  months.forEach((m,i)=>{ if(i===0)return; const pct=((m-minD)/totalMs*100).toFixed(2); html+=`<div class="absolute top-0 bottom-0 w-px bg-slate-100" style="left:calc(${LW}px + ${pct}%)"></div>`; });
+  html+=`<div class="gantt-today-line" style="left:calc(${LW}px + ${todayPct.toFixed(2)}%)"><span style="position:absolute;top:2px;left:1px;transform:translateX(-50%);font-size:9px;font-weight:700;color:#ef4444;background:white;border:1px solid #fca5a5;padding:0 3px;border-radius:3px;white-space:nowrap;z-index:6">TODAY</span></div>`;
+  ps.forEach(p=>{
+    const color=(tc[p.type]||'#6366f1')+(sa[p.status]||'ff');
+    const sD=p.startDate?new Date(p.startDate):new Date(minD);
+    const eD=p.endDate?new Date(p.endDate):new Date(maxD);
+    const lPct=Math.max(0,((sD-minD)/totalMs*100));
+    const wPct=Math.max(0.5,((eD-sD)/totalMs*100));
+    html+=`<div class="flex items-center mb-2">
+      <div class="flex-shrink-0 pr-3 text-right" style="width:${LW}px"><p class="text-xs font-semibold text-slate-700 truncate">${esc(p.name)}</p><p class="text-xs text-slate-400 truncate">${esc(p.client||'')}</p></div>
+      <div class="flex-1 relative h-9 flex items-center">
+        <div class="gantt-bar absolute" style="left:${lPct.toFixed(2)}%;width:${wPct.toFixed(2)}%;background:${color}" onclick="openEditModal('${p.id}')" title="${esc(p.name)}">${esc(p.name)}</div>
+      </div>
+    </div>`;
+  });
+  html+=`</div></div>`;
+  el.innerHTML=html;
 }
 
-function openEditModal(id) {
-  const p = state.projects.find(x => x.id === id);
-  if (!p) return;
-  currentModalId = id;
-  document.getElementById('modal-title').textContent = '프로젝트 편집';
-  document.getElementById('m-type').value = p.type;
-  document.getElementById('m-status').value = p.status;
-  document.getElementById('m-name').value = p.name;
-  document.getElementById('m-client').value = p.client || '';
-  document.getElementById('m-summary').value = p.summary || '';
-  document.getElementById('m-start').value = p.startDate || '';
-  document.getElementById('m-end').value = p.endDate || '';
-  document.getElementById('m-effort').value = p.effort || '';
-  document.getElementById('m-unit').value = p.effortUnit || 'MM';
-  document.getElementById('m-email').value = p.emailContent || '';
-  document.getElementById('m-created').textContent = fmtDate(p.createdAt);
-  document.getElementById('m-updated').textContent = fmtDate(p.updatedAt);
-  document.getElementById('m-meta').classList.remove('hidden');
-  const btn = document.getElementById('btn-delete');
-  btn.classList.remove('hidden'); btn.style.display = 'inline-flex';
-  showModal();
-}
+// ─────────────────────────────────────────────
+// CALENDAR
+// ─────────────────────────────────────────────
+function moveMonth(dir){ calMonth+=dir; if(calMonth>11){calMonth=0;calYear++;} if(calMonth<0){calMonth=11;calYear--;} renderCalendar(); }
+function renderCalendar(){
+  document.getElementById('cal-title').textContent=`${calYear}년 ${calMonth+1}월`;
+  const firstDow=new Date(calYear,calMonth,1).getDay();
+  const daysInMonth=new Date(calYear,calMonth+1,0).getDate();
+  const daysInPrev=new Date(calYear,calMonth,0).getDate();
+  const today=new Date(); today.setHours(0,0,0,0);
+  const tc={'RFI':'#3B82F6','RFP':'#F59E0B','실행중인 프로젝트':'#10B981'};
 
-function showModal() {
-  document.getElementById('project-modal').classList.remove('hidden');
-  document.body.style.overflow = 'hidden';
-  setTimeout(() => document.getElementById('m-name').focus(), 100);
-}
-
-function closeModal() {
-  document.getElementById('project-modal').classList.add('hidden');
-  document.body.style.overflow = '';
-}
-
-function saveModal() {
-  const name = document.getElementById('m-name').value.trim();
-  if (!name) { showToast('프로젝트명은 필수 항목입니다.', 'error'); document.getElementById('m-name').focus(); return; }
-  const d = {
-    type: document.getElementById('m-type').value,
-    name, client: document.getElementById('m-client').value.trim(),
-    summary: document.getElementById('m-summary').value.trim(),
-    startDate: document.getElementById('m-start').value,
-    endDate: document.getElementById('m-end').value,
-    effort: parseFloat(document.getElementById('m-effort').value) || 0,
-    effortUnit: document.getElementById('m-unit').value,
-    status: document.getElementById('m-status').value,
-    emailContent: document.getElementById('m-email').value.trim()
-  };
-  if (currentModalId) { updateProject(currentModalId, d); showToast('프로젝트가 수정되었습니다.', 'success'); }
-  else { createProject(d); showToast('프로젝트가 등록되었습니다.', 'success'); }
-  closeModal();
-}
-
-function deleteCurrentProject() {
-  if (!currentModalId) return;
-  const p = state.projects.find(x => x.id === currentModalId);
-  if (!p) return;
-  if (!confirm(`"${p.name}" 프로젝트를 삭제하시겠습니까?\n이 작업은 되돌릴 수 없습니다.`)) return;
-  deleteProject(currentModalId);
-  closeModal();
-  showToast('프로젝트가 삭제되었습니다.', 'info');
-}
-
-// =====================================================================
-// EMAIL ANALYSIS
-// =====================================================================
-function toggleEmailPanel() {
-  const panel = document.getElementById('email-panel');
-  const hidden = panel.classList.toggle('hidden');
-  if (!hidden) { panel.classList.add('anim-slide'); document.getElementById('email-text').focus(); }
-}
-
-function analyzeEmail(text) {
-  const r = { name:'', client:'', summary:'', startDate:'', endDate:'', effort:'', effortUnit:'MM', type:'RFI', status:'대기' };
-
-  // Type detection
-  if (/RFP|제안\s*요청|제안서\s*(작성|요청|제출)/i.test(text)) r.type = 'RFP';
-  else if (/착수|수주|계약\s*체결|프로젝트\s*시작|실행/i.test(text)) r.type = '실행중인 프로젝트';
-
-  // Status
-  if (/진행\s*중|착수|실행\s*중|수행\s*중/i.test(text)) r.status = '진행중';
-  else if (/완료|완성|종료됨/i.test(text)) r.status = '완료';
-
-  // Project name
-  for (const pat of [
-    /(?:프로젝트명|과제명|사업명|건명|제목)\s*[:：]\s*(.+?)(?:\n|$)/i,
-    /(?:Subject|Re|Fw)\s*[:：]\s*(?:re:\s*|fw:\s*)?(.+?)(?:\n|$)/i,
-    /\[([가-힣\w\s]{3,40}(?:시스템|플랫폼|개발|구축|분석|운영|서비스|솔루션|프로젝트|사업))\]/,
-  ]) {
-    const m = text.match(pat);
-    if (m?.[1]?.trim().length > 2) { r.name = m[1].trim().replace(/\s+/g,' '); break; }
-  }
-
-  // Client
-  for (const pat of [
-    /(?:고객사|발주처|의뢰처|요청처|클라이언트)\s*[:：]\s*(.+?)(?:\n|$)/i,
-    /(?:보낸\s*사람|발신|From)\s*[:：]\s*.+?@([\w.-]+)\./i,
-    /([\w가-힣]+(?:주식회사|\(주\)|㈜|Co\.\s*Ltd\.|Inc\.?))/,
-  ]) {
-    const m = text.match(pat);
-    if (m?.[1]?.trim().length > 1) { r.client = m[1].trim(); break; }
-  }
-
-  // Dates - collect all valid dates
-  const dates = [];
-  const reDates = [
-    /(\d{4})[./\-](\d{1,2})[./\-](\d{1,2})/g,
-    /(\d{4})년\s*(\d{1,2})월\s*(\d{1,2})일/g,
-  ];
-  for (const re of reDates) {
-    const rx = new RegExp(re.source, 'g');
-    let m;
-    while ((m = rx.exec(text)) !== null) {
-      const y=parseInt(m[1]), mo=parseInt(m[2]), d=parseInt(m[3]);
-      if (y>=2020&&y<=2035&&mo>=1&&mo<=12&&d>=1&&d<=31)
-        dates.push(`${y}-${String(mo).padStart(2,'0')}-${String(d).padStart(2,'0')}`);
+  // build event map: dateStr → [{kind, label, id, color}]
+  const evMap={};
+  const addEv=(ds,obj)=>{ if(!evMap[ds])evMap[ds]=[]; evMap[ds].push(obj); };
+  projects.forEach(p=>{
+    if(p.startDate) addEv(p.startDate,{kind:'project',label:'▶ '+p.name,id:p.id,color:tc[p.type]||'#6366f1'});
+    if(p.endDate&&p.endDate!==p.startDate) addEv(p.endDate,{kind:'project',label:'■ '+p.name,id:p.id,color:tc[p.type]||'#6366f1'});
+  });
+  personal.forEach(ev=>{
+    if(ev.startDate){
+      // span all days of the event
+      const s=new Date(ev.startDate), e=new Date(ev.endDate||ev.startDate);
+      for(let d=new Date(s);d<=e;d.setDate(d.getDate()+1)){
+        const ds=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+        addEv(ds,{kind:'personal',label:ev.title,id:ev.id,color:ev.color||'#ec4899'});
+      }
     }
-  }
-
-  // Labeled dates take priority
-  const sLbl = text.match(/(?:시작일|착수일|개시일|시작\s*일자)\s*[:：]\s*(\d{4}[./\-년]\d{1,2}[./\-월]\d{1,2}일?)/);
-  const eLbl = text.match(/(?:종료일|완료일|납기일|마감일|기한)\s*[:：]\s*(\d{4}[./\-년]\d{1,2}[./\-월]\d{1,2}일?)/);
-
-  r.startDate = sLbl ? normDate(sLbl[1]) : (dates[0] || '');
-  r.endDate   = eLbl ? normDate(eLbl[1]) : (dates.length>1 ? dates[dates.length-1] : '');
-
-  // Effort
-  const mMD = text.match(/(\d+(?:\.\d+)?)\s*(?:M[./]?D|man[\s-]?day|인일)/i);
-  const mMM = text.match(/(\d+(?:\.\d+)?)\s*(?:M[./]?M|man[\s-]?month|인월)/i);
-  if (mMD) { r.effort = mMD[1]; r.effortUnit = 'MD'; }
-  else if (mMM) { r.effort = mMM[1]; r.effortUnit = 'MM'; }
-
-  // Summary
-  const lines = text.split('\n').map(l=>l.trim())
-    .filter(l => l.length>20 && !/^[>※\-*=]/.test(l) && !/^(보낸|받는|수신|발신|from|to|subject|cc|re:|fw:|date:|날짜)/i.test(l));
-  r.summary = lines.slice(0,3).join(' ').slice(0,300);
-
-  return r;
-}
-
-function normDate(s) {
-  const m = s.match(/(\d{4})[./\-년]\s*(\d{1,2})[./\-월]\s*(\d{1,2})/);
-  if (!m) return '';
-  return `${m[1]}-${m[2].padStart(2,'0')}-${m[3].padStart(2,'0')}`;
-}
-
-function analyzeAndPreview() {
-  const text = document.getElementById('email-text').value.trim();
-  if (!text) { showToast('이메일 내용을 먼저 입력해주세요.', 'warning'); return; }
-
-  const r = analyzeEmail(text);
-  document.getElementById('ep-type').value = r.type;
-  document.getElementById('ep-status').value = r.status;
-  document.getElementById('ep-name').value = r.name;
-  document.getElementById('ep-client').value = r.client;
-  document.getElementById('ep-start').value = r.startDate;
-  document.getElementById('ep-end').value = r.endDate;
-  document.getElementById('ep-effort').value = r.effort;
-  document.getElementById('ep-unit').value = r.effortUnit;
-  document.getElementById('ep-summary').value = r.summary;
-
-  const prev = document.getElementById('email-preview');
-  prev.classList.remove('hidden');
-  prev.classList.add('anim-slide');
-  showToast('분석 완료! 추출된 정보를 확인 후 등록하세요.', 'success');
-}
-
-function checkDuplicate(name, client, email) {
-  const n = name.trim().toLowerCase();
-  const c = client.trim().toLowerCase();
-  for (const p of state.projects) {
-    const pn = p.name.toLowerCase(), pc = (p.client||'').toLowerCase();
-    if (n && pn===n && (!c || !pc || pc===c)) return p;
-    if (n.length>5 && (pn.includes(n)||n.includes(pn)) && (!c||!pc||pc===c)) return p;
-    if (email && p.emailContent) {
-      const snip = email.slice(0,80).toLowerCase();
-      if (snip.length>30 && p.emailContent.toLowerCase().includes(snip.slice(0,40))) return p;
-    }
-  }
-  return null;
-}
-
-function registerFromEmail() {
-  const name = document.getElementById('ep-name').value.trim();
-  if (!name) { showToast('프로젝트명은 필수 항목입니다.', 'error'); document.getElementById('ep-name').focus(); return; }
-
-  const client = document.getElementById('ep-client').value.trim();
-  const emailContent = document.getElementById('email-text').value.trim();
-  const dup = checkDuplicate(name, client, emailContent);
-
-  if (dup) {
-    const ok = confirm(`⚠️ 이미 등록된 프로젝트입니다.\n\n기존: "${dup.name}" (${dup.client||'고객사 없음'})\n\n그래도 새로 등록하시겠습니까?`);
-    if (!ok) return;
-  }
-
-  createProject({
-    type: document.getElementById('ep-type').value,
-    name, client,
-    summary: document.getElementById('ep-summary').value.trim(),
-    startDate: document.getElementById('ep-start').value,
-    endDate: document.getElementById('ep-end').value,
-    effort: parseFloat(document.getElementById('ep-effort').value)||0,
-    effortUnit: document.getElementById('ep-unit').value,
-    status: document.getElementById('ep-status').value,
-    emailContent
   });
 
-  showToast(`"${name}" 등록 완료!`, 'success');
-  document.getElementById('email-text').value = '';
-  document.getElementById('email-preview').classList.add('hidden');
-}
-
-// =====================================================================
-// FILE I/O
-// =====================================================================
-function exportJSON() {
-  const blob = new Blob([JSON.stringify(state, null, 2)], { type:'application/json' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `project_data_${new Date().toISOString().slice(0,10)}.json`;
-  document.body.appendChild(a); a.click();
-  document.body.removeChild(a); URL.revokeObjectURL(url);
-  showToast('JSON 파일로 저장되었습니다.', 'success');
-}
-
-function importJSON(e) {
-  const file = e.target.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = ev => {
-    try {
-      const data = JSON.parse(ev.target.result);
-      if (!Array.isArray(data.projects)) { showToast('올바른 형식의 JSON이 아닙니다.', 'error'); return; }
-      if (state.projects.length > 0) {
-        const choice = confirm(
-          `현재 ${state.projects.length}개 프로젝트가 있습니다.\n\n` +
-          `[확인] 불러온 데이터(${data.projects.length}개)로 교체\n` +
-          `[취소] 기존 데이터에 병합`
-        );
-        if (!choice) {
-          let added = 0;
-          data.projects.forEach(p => {
-            if (!state.projects.find(x => x.id === p.id)) { state.projects.push(p); added++; }
-          });
-          save(); renderAll(); showToast(`${added}개 프로젝트가 병합되었습니다.`, 'success');
-          return;
-        }
+  let html=''; let dc=0;
+  for(let i=firstDow-1;i>=0;i--){ html+=`<div class="cal-cell cal-other"><span class="text-xs text-slate-300">${daysInPrev-i}</span></div>`; dc++; }
+  for(let d=1;d<=daysInMonth;d++){
+    const dt=new Date(calYear,calMonth,d);
+    const isToday=dt.getTime()===today.getTime();
+    const ds=`${calYear}-${String(calMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const evs=evMap[ds]||[];
+    const dow=dt.getDay();
+    const nc=dow===0?'text-red-400':dow===6?'text-blue-400':'text-slate-600';
+    html+=`<div class="cal-cell ${isToday?'cal-today':''}" ondblclick="openPersonalEventModal('${ds}')">
+      <span class="text-xs font-semibold ${nc}">${d}</span>`;
+    evs.slice(0,3).forEach(ev=>{
+      if(ev.kind==='project'){
+        html+=`<div class="cal-event" style="background:${ev.color}" onclick="openEditModal('${ev.id}')" title="${esc(ev.label)}">${esc(ev.label)}</div>`;
+      } else {
+        html+=`<div class="cal-personal" style="border-color:${ev.color}" onclick="openPersonalEventEdit('${ev.id}')" title="${esc(ev.label)}">${esc(ev.label)}</div>`;
       }
-      state = data; save(); renderAll();
-      showToast(`${data.projects.length}개 프로젝트를 불러왔습니다.`, 'success');
-    } catch { showToast('파일을 읽는 중 오류가 발생했습니다.', 'error'); }
-  };
-  reader.readAsText(file, 'UTF-8');
-  e.target.value = '';
+    });
+    if(evs.length>3) html+=`<div class="text-xs text-slate-400 mt-0.5 pl-1">+${evs.length-3}</div>`;
+    html+=`</div>`; dc++;
+  }
+  const rem=(7-dc%7)%7;
+  for(let d=1;d<=rem;d++){ html+=`<div class="cal-cell cal-other"><span class="text-xs text-slate-300">${d}</span></div>`; }
+  document.getElementById('cal-grid').innerHTML=html;
 }
 
-// =====================================================================
+// ─────────────────────────────────────────────
+// TEAM VIEW
+// ─────────────────────────────────────────────
+function renderTeam(){
+  const totalCapMM = members.reduce((s,m)=>s+(parseFloat(m.capacity)||1),0);
+  const allocMap = {};
+  projects.forEach(p=>(p.assignments||[]).forEach(a=>{
+    const key=a.memberId||a.name;
+    if(!allocMap[key]) allocMap[key]={totalMM:0,projects:[]};
+    const mm=a.effortUnit==='MD'?a.effort/20:a.effort;
+    allocMap[key].totalMM+=mm;
+    allocMap[key].projects.push({name:p.name,type:p.type,effort:a.effort,effortUnit:a.effortUnit});
+  }));
+  const overloaded=members.filter(m=>(allocMap[m.id]||{}).totalMM>(parseFloat(m.capacity)||1)*1.5).length;
+
+  document.getElementById('team-stats').innerHTML=[
+    tStatCard('전체 팀원','#6366F1',members.length,'명'),
+    tStatCard('총 가용 공수','#10B981',totalCapMM.toFixed(1),'MM/월'),
+    tStatCard('배정 공수','#F59E0B',Object.values(allocMap).reduce((s,v)=>s+v.totalMM,0).toFixed(1),'MM'),
+    tStatCard('과부하','#EF4444',overloaded,'명'),
+  ].join('');
+
+  const tc={'RFI':'#3B82F6','RFP':'#F59E0B','실행중인 프로젝트':'#10B981'};
+  if(!members.length){
+    document.getElementById('team-grid').innerHTML=`<div class="col-span-3 py-12 text-center"><p class="text-slate-400 text-sm">등록된 팀원이 없습니다.</p><p class="text-xs text-slate-300 mt-1">상단 "팀원 추가" 버튼을 클릭하세요.</p></div>`;
+    return;
+  }
+  document.getElementById('team-grid').innerHTML=members.map(m=>{
+    const alloc=allocMap[m.id]||{totalMM:0,projects:[]};
+    const cap=parseFloat(m.capacity)||1;
+    const pct=Math.min(100,alloc.totalMM/cap*100);
+    const fc=alloc.totalMM>cap*1.5?'bg-red-400':alloc.totalMM>cap?'bg-amber-400':'bg-indigo-400';
+    return `<div class="border border-slate-200 rounded-xl p-4 bg-white hover:shadow-md transition-shadow">
+      <div class="flex items-center gap-3 mb-3">
+        <div class="w-9 h-9 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 font-bold text-sm flex-shrink-0">${esc(m.name.slice(0,1))}</div>
+        <div class="flex-1 min-w-0">
+          <p class="text-sm font-semibold text-slate-800 truncate">${esc(m.name)}</p>
+          <p class="text-xs text-slate-400">${esc(m.role||'')}${m.team?` · ${esc(m.team)}`:''}</p>
+        </div>
+        <div class="flex gap-1">
+          <button onclick="openMemberEdit('${m.id}')" class="p-1 hover:bg-slate-100 rounded text-slate-400 hover:text-slate-600 transition-colors"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg></button>
+          <button onclick="deleteMember('${m.id}')" class="p-1 hover:bg-red-50 rounded text-slate-400 hover:text-red-500 transition-colors"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg></button>
+        </div>
+      </div>
+      <div class="mb-3">
+        <div class="flex justify-between text-xs mb-1">
+          <span class="text-slate-500">투입 공수</span>
+          <span class="font-semibold ${alloc.totalMM>cap*1.5?'text-red-500':'text-slate-700'}">${alloc.totalMM.toFixed(1)} / ${cap} MM</span>
+        </div>
+        <div class="effort-track"><div class="effort-fill ${fc}" style="width:${pct}%"></div></div>
+      </div>
+      ${alloc.projects.length?`<div class="space-y-1">${alloc.projects.map(pr=>`<div class="flex items-center justify-between text-xs"><span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full" style="background:${tc[pr.type]||'#6366f1'}"></span><span class="text-slate-600 truncate max-w-[110px]">${esc(pr.name)}</span></span><span class="text-slate-400">${pr.effort} ${pr.effortUnit}</span></div>`).join('')}</div>`:`<p class="text-xs text-slate-300">배정된 프로젝트 없음</p>`}
+      ${m.email?`<p class="text-xs text-slate-300 mt-2 truncate">✉ ${esc(m.email)}</p>`:''}
+    </div>`;
+  }).join('');
+}
+function tStatCard(label,color,val,unit){
+  return `<div class="bg-white rounded-xl px-4 py-3 shadow-sm border-l-4" style="border-color:${color}"><p class="text-xs text-slate-500">${label}</p><p class="text-xl font-bold text-slate-800">${val} <span class="text-sm font-normal text-slate-400">${unit}</span></p></div>`;
+}
+
+// ─────────────────────────────────────────────
+// PROJECT MODAL
+// ─────────────────────────────────────────────
+function refreshMemberPicker(){
+  const sel=document.getElementById('member-pick');
+  sel.innerHTML='<option value="">-- 팀원 선택 --</option>';
+  members.forEach(m=>{ const opt=document.createElement('option'); opt.value=m.id; opt.textContent=`${m.name} (${m.role||'역할없음'})`; sel.appendChild(opt); });
+}
+function openCreateModal(){
+  currentProjectId=null; modalAssignments=[];
+  document.getElementById('project-modal-title').textContent='새 프로젝트 등록';
+  ['m-type','m-status','m-name','m-client','m-summary','m-start','m-end','m-effort','m-unit','m-email'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el.tagName==='SELECT') el.selectedIndex=0;
+    else el.value='';
+  });
+  document.getElementById('m-type').value='RFI';
+  document.getElementById('m-status').value='대기';
+  document.getElementById('m-unit').value='MM';
+  document.getElementById('m-meta').classList.add('hidden');
+  const btn=document.getElementById('btn-delete'); btn.classList.add('hidden'); btn.style.display='';
+  refreshMemberPicker(); renderAssignments();
+  showModalEl('project-modal');
+}
+function openEditModal(id){
+  const p=projects.find(x=>x.id===id); if(!p) return;
+  currentProjectId=id; modalAssignments=(p.assignments||[]).map(a=>({...a}));
+  document.getElementById('project-modal-title').textContent='프로젝트 편집';
+  document.getElementById('m-type').value=p.type;
+  document.getElementById('m-status').value=p.status;
+  document.getElementById('m-name').value=p.name;
+  document.getElementById('m-client').value=p.client||'';
+  document.getElementById('m-summary').value=p.summary||'';
+  document.getElementById('m-start').value=p.startDate||'';
+  document.getElementById('m-end').value=p.endDate||'';
+  document.getElementById('m-effort').value=p.effort||'';
+  document.getElementById('m-unit').value=p.effortUnit||'MM';
+  document.getElementById('m-email').value=p.emailContent||'';
+  document.getElementById('m-created').textContent=fmtDate(p.createdAt);
+  document.getElementById('m-updated').textContent=fmtDate(p.updatedAt);
+  document.getElementById('m-meta').classList.remove('hidden');
+  const btn=document.getElementById('btn-delete'); btn.classList.remove('hidden'); btn.style.display='inline-flex';
+  refreshMemberPicker(); renderAssignments();
+  showModalEl('project-modal');
+}
+function saveProjectModal(){
+  const name=document.getElementById('m-name').value.trim();
+  if(!name){ showToast('프로젝트명은 필수입니다','error'); return; }
+  const d={
+    type:document.getElementById('m-type').value, name,
+    client:document.getElementById('m-client').value.trim(),
+    summary:document.getElementById('m-summary').value.trim(),
+    startDate:document.getElementById('m-start').value,
+    endDate:document.getElementById('m-end').value,
+    effort:parseFloat(document.getElementById('m-effort').value)||0,
+    effortUnit:document.getElementById('m-unit').value,
+    status:document.getElementById('m-status').value,
+    emailContent:document.getElementById('m-email').value.trim(),
+    assignments:modalAssignments
+  };
+  if(currentProjectId){
+    const p=projects.find(x=>x.id===currentProjectId);
+    Object.assign(p,d,{updatedAt:now()});
+  } else {
+    projects.push({id:uid(),...d,createdAt:now(),updatedAt:now()});
+  }
+  saveProjects(); renderAll(); closeModal('project');
+  showToast(currentProjectId?'수정됨':'등록됨','success');
+}
+function deleteCurrentProject(){
+  if(!currentProjectId) return;
+  const p=projects.find(x=>x.id===currentProjectId);
+  if(p&&confirm(`"${p.name}" 삭제하시겠습니까?`)){ projects=projects.filter(x=>x.id!==currentProjectId); saveProjects(); renderAll(); closeModal('project'); showToast('삭제됨','info'); }
+}
+
+// ─────────────────────────────────────────────
+// ASSIGNMENT (project ↔ member)
+// ─────────────────────────────────────────────
+function addAssignment(){
+  const sel=document.getElementById('member-pick');
+  const mid=sel.value; if(!mid) return;
+  const m=members.find(x=>x.id===mid); if(!m) return;
+  if(modalAssignments.find(a=>a.memberId===mid)){ showToast('이미 배정된 팀원입니다','warning'); return; }
+  modalAssignments.push({id:uid(),memberId:mid,name:m.name,role:m.role||'',effort:1,effortUnit:'MM'});
+  renderAssignments();
+}
+function addCustomAssignment(){
+  const name=prompt('이름:'); if(!name||!name.trim()) return;
+  const role=prompt('역할:','') || '';
+  modalAssignments.push({id:uid(),memberId:null,name:name.trim(),role,effort:1,effortUnit:'MM'});
+  renderAssignments();
+}
+function removeAssignment(aid){ modalAssignments=modalAssignments.filter(a=>a.id!==aid); renderAssignments(); }
+function updateAssign(aid,field,val){
+  const a=modalAssignments.find(x=>x.id===aid); if(a) a[field]=field==='effort'?parseFloat(val)||0:val;
+  updateAssignTotal();
+}
+function updateAssignTotal(){
+  const total=modalAssignments.reduce((s,a)=>s+(a.effortUnit==='MD'?a.effort/20:a.effort),0);
+  document.getElementById('modal-assign-total').textContent=total.toFixed(1)+' MM';
+}
+function renderAssignments(){
+  const el=document.getElementById('modal-assignments');
+  if(!modalAssignments.length){ el.innerHTML=`<p class="text-xs text-slate-300 text-center py-4">배정된 팀원이 없습니다</p>`; updateAssignTotal(); return; }
+  el.innerHTML=modalAssignments.map(a=>`
+    <div class="flex items-center gap-2 px-3 py-2">
+      <span class="w-6 h-6 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center text-xs font-bold flex-shrink-0">${esc(a.name.slice(0,1))}</span>
+      <input type="text" value="${esc(a.name)}" placeholder="이름" onchange="updateAssign('${a.id}','name',this.value)"
+        class="flex-1 min-w-0 px-2 py-1 border border-slate-200 rounded text-xs focus:outline-none focus:ring-1 focus:ring-indigo-400">
+      <input type="text" value="${esc(a.role)}" placeholder="역할" onchange="updateAssign('${a.id}','role',this.value)"
+        class="w-20 px-2 py-1 border border-slate-200 rounded text-xs focus:outline-none focus:ring-1 focus:ring-indigo-400">
+      <input type="number" value="${a.effort}" step="0.5" min="0" onchange="updateAssign('${a.id}','effort',this.value)"
+        class="w-14 px-2 py-1 border border-slate-200 rounded text-xs focus:outline-none focus:ring-1 focus:ring-indigo-400">
+      <select onchange="updateAssign('${a.id}','effortUnit',this.value)"
+        class="px-1 py-1 border border-slate-200 rounded text-xs bg-white focus:outline-none">
+        <option ${a.effortUnit==='MM'?'selected':''}>MM</option><option ${a.effortUnit==='MD'?'selected':''}>MD</option>
+      </select>
+      <button onclick="removeAssignment('${a.id}')" class="text-slate-300 hover:text-red-400 transition-colors flex-shrink-0">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+    </div>`).join('');
+  updateAssignTotal();
+}
+
+// ─────────────────────────────────────────────
+// MEMBER MODAL
+// ─────────────────────────────────────────────
+function openMemberModal(){
+  currentMemberId=null;
+  document.getElementById('member-modal-title').textContent='팀원 추가';
+  ['mm-name','mm-role','mm-team','mm-email','mm-memo'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('mm-capacity').value='1';
+  const btn=document.getElementById('mm-delete'); btn.classList.add('hidden'); btn.style.display='';
+  showModalEl('member-modal');
+}
+function openMemberEdit(id){
+  const m=members.find(x=>x.id===id); if(!m) return;
+  currentMemberId=id;
+  document.getElementById('member-modal-title').textContent='팀원 편집';
+  document.getElementById('mm-name').value=m.name||'';
+  document.getElementById('mm-role').value=m.role||'';
+  document.getElementById('mm-team').value=m.team||'';
+  document.getElementById('mm-email').value=m.email||'';
+  document.getElementById('mm-capacity').value=m.capacity||1;
+  document.getElementById('mm-memo').value=m.memo||'';
+  const btn=document.getElementById('mm-delete'); btn.classList.remove('hidden'); btn.style.display='inline-flex';
+  showModalEl('member-modal');
+}
+function saveMemberModal(){
+  const name=document.getElementById('mm-name').value.trim();
+  if(!name){ showToast('이름은 필수입니다','error'); return; }
+  const d={name, role:document.getElementById('mm-role').value.trim(), team:document.getElementById('mm-team').value.trim(), email:document.getElementById('mm-email').value.trim(), capacity:parseFloat(document.getElementById('mm-capacity').value)||1, memo:document.getElementById('mm-memo').value.trim()};
+  if(currentMemberId){ const m=members.find(x=>x.id===currentMemberId); Object.assign(m,d); }
+  else { members.push({id:uid(),...d}); }
+  saveMembers(); renderAll(); closeModal('member');
+  showToast(currentMemberId?'팀원 수정됨':'팀원 추가됨','success');
+}
+function deleteCurrentMember(){
+  if(!currentMemberId) return;
+  const m=members.find(x=>x.id===currentMemberId);
+  if(m&&confirm(`"${m.name}" 팀원을 삭제하시겠습니까?`)){ members=members.filter(x=>x.id!==currentMemberId); saveMembers(); renderAll(); closeModal('member'); showToast('팀원 삭제됨','info'); }
+}
+function deleteMember(id){
+  const m=members.find(x=>x.id===id);
+  if(m&&confirm(`"${m.name}" 팀원을 삭제하시겠습니까?`)){ members=members.filter(x=>x.id!==id); saveMembers(); renderTeam(); showToast('삭제됨','info'); }
+}
+
+// ─────────────────────────────────────────────
+// PERSONAL EVENT MODAL
+// ─────────────────────────────────────────────
+function openPersonalEventModal(dateStr){
+  currentPersonalId=null;
+  document.getElementById('personal-modal-title').textContent='개인 일정 추가';
+  document.getElementById('pe-title').value='';
+  document.getElementById('pe-type').value='개인';
+  document.getElementById('pe-color').value='#ec4899';
+  document.getElementById('pe-start').value=dateStr||'';
+  document.getElementById('pe-end').value=dateStr||'';
+  document.getElementById('pe-memo').value='';
+  const btn=document.getElementById('pe-delete'); btn.classList.add('hidden'); btn.style.display='';
+  showModalEl('personal-modal');
+}
+function openPersonalEventEdit(id){
+  const ev=personal.find(x=>x.id===id); if(!ev) return;
+  currentPersonalId=id;
+  document.getElementById('personal-modal-title').textContent='개인 일정 편집';
+  document.getElementById('pe-title').value=ev.title||'';
+  document.getElementById('pe-type').value=ev.type||'개인';
+  document.getElementById('pe-color').value=ev.color||'#ec4899';
+  document.getElementById('pe-start').value=ev.startDate||'';
+  document.getElementById('pe-end').value=ev.endDate||'';
+  document.getElementById('pe-memo').value=ev.memo||'';
+  const btn=document.getElementById('pe-delete'); btn.classList.remove('hidden'); btn.style.display='inline-flex';
+  showModalEl('personal-modal');
+}
+function savePersonalEventModal(){
+  const title=document.getElementById('pe-title').value.trim();
+  if(!title){ showToast('제목은 필수입니다','error'); return; }
+  const startDate=document.getElementById('pe-start').value;
+  if(!startDate){ showToast('시작일을 입력하세요','error'); return; }
+  const d={title, type:document.getElementById('pe-type').value, color:document.getElementById('pe-color').value, startDate, endDate:document.getElementById('pe-end').value||startDate, memo:document.getElementById('pe-memo').value.trim()};
+  if(currentPersonalId){ const ev=personal.find(x=>x.id===currentPersonalId); Object.assign(ev,d); }
+  else { personal.push({id:uid(),...d}); }
+  savePersonal(); renderCalendar(); closeModal('personal');
+  showToast(currentPersonalId?'일정 수정됨':'일정 추가됨','success');
+}
+function deleteCurrentPersonalEvent(){
+  if(!currentPersonalId) return;
+  const ev=personal.find(x=>x.id===currentPersonalId);
+  if(ev&&confirm(`"${ev.title}" 삭제하시겠습니까?`)){ personal=personal.filter(x=>x.id!==currentPersonalId); savePersonal(); renderCalendar(); closeModal('personal'); showToast('삭제됨','info'); }
+}
+
+// ─────────────────────────────────────────────
+// MODAL HELPERS
+// ─────────────────────────────────────────────
+function showModalEl(id){ document.getElementById(id).classList.remove('hidden'); document.body.style.overflow='hidden'; }
+function closeModal(type){ document.getElementById(type+'-modal').classList.add('hidden'); document.body.style.overflow=''; }
+
+// ─────────────────────────────────────────────
+// EMAIL ANALYSIS
+// ─────────────────────────────────────────────
+function toggleEmailPanel(){ document.getElementById('email-panel').classList.toggle('hidden'); }
+function analyzeEmail(text){
+  const r={name:'',client:'',summary:'',startDate:'',endDate:'',effort:'',effortUnit:'MM',type:'RFI',status:'대기'};
+  if(/RFP|제안\s*요청/i.test(text)) r.type='RFP';
+  else if(/착수|수주|계약\s*체결/i.test(text)) r.type='실행중인 프로젝트';
+  if(/진행\s*중|착수|실행\s*중/i.test(text)) r.status='진행중';
+  for(const pat of[/(?:프로젝트명|과제명|건명|제목)\s*[:：]\s*(.+?)(?:\n|$)/i,/(?:Subject)\s*[:：]\s*(?:re:\s*|fw:\s*)?(.+?)(?:\n|$)/i]){
+    const m=text.match(pat); if(m?.[1]?.trim().length>2){ r.name=m[1].trim(); break; }
+  }
+  for(const pat of[/(?:고객사|발주처|의뢰처)\s*[:：]\s*(.+?)(?:\n|$)/i,/([\w가-힣]+(?:주식회사|\(주\)|㈜))/]){
+    const m=text.match(pat); if(m?.[1]?.trim().length>1){ r.client=m[1].trim(); break; }
+  }
+  const dates=[]; ['(\\d{4})[./\\-](\\d{1,2})[./\\-](\\d{1,2})','(\\d{4})년\\s*(\\d{1,2})월\\s*(\\d{1,2})일'].forEach(rx=>{
+    const re=new RegExp(rx,'g'); let m; while((m=re.exec(text))!==null){ const y=+m[1],mo=+m[2],d=+m[3]; if(y>=2020&&y<=2035&&mo>=1&&mo<=12&&d>=1&&d<=31) dates.push(`${y}-${String(mo).padStart(2,'0')}-${String(d).padStart(2,'0')}`); }
+  });
+  r.startDate=dates[0]||''; r.endDate=dates.length>1?dates[dates.length-1]:'';
+  const mMD=text.match(/(\d+(?:\.\d+)?)\s*(?:M[./]?D|man[\s-]?day|인일)/i);
+  const mMM=text.match(/(\d+(?:\.\d+)?)\s*(?:M[./]?M|man[\s-]?month|인월)/i);
+  if(mMD){r.effort=mMD[1];r.effortUnit='MD';}else if(mMM){r.effort=mMM[1];r.effortUnit='MM';}
+  r.summary=text.split('\n').map(l=>l.trim()).filter(l=>l.length>20&&!/^[>※\-*]/.test(l)&&!/^(보낸|받는|from|to|subject|cc|re:|fw:)/i.test(l)).slice(0,3).join(' ').slice(0,300);
+  return r;
+}
+function analyzeAndPreview(){
+  const text=document.getElementById('email-text').value.trim(); if(!text){showToast('이메일을 입력하세요','warning');return;}
+  const r=analyzeEmail(text);
+  document.getElementById('ep-type').value=r.type; document.getElementById('ep-status').value=r.status;
+  document.getElementById('ep-name').value=r.name; document.getElementById('ep-client').value=r.client;
+  document.getElementById('ep-start').value=r.startDate; document.getElementById('ep-end').value=r.endDate;
+  document.getElementById('ep-effort').value=r.effort; document.getElementById('ep-unit').value=r.effortUnit;
+  document.getElementById('ep-summary').value=r.summary;
+  document.getElementById('email-preview').classList.remove('hidden');
+  showToast('분석 완료!','success');
+}
+function registerFromEmail(){
+  const name=document.getElementById('ep-name').value.trim(); if(!name){showToast('프로젝트명 필수','error');return;}
+  const client=document.getElementById('ep-client').value.trim();
+  const emailContent=document.getElementById('email-text').value.trim();
+  const dup=projects.find(p=>p.name.toLowerCase()===name.toLowerCase()&&(!client||(p.client||'').toLowerCase()===client.toLowerCase()));
+  if(dup&&!confirm(`⚠️ 이미 등록된 프로젝트입니다.\n기존: "${dup.name}"\n\n그래도 등록하시겠습니까?`)) return;
+  projects.push({id:uid(),type:document.getElementById('ep-type').value,name,client,summary:document.getElementById('ep-summary').value.trim(),startDate:document.getElementById('ep-start').value,endDate:document.getElementById('ep-end').value,effort:parseFloat(document.getElementById('ep-effort').value)||0,effortUnit:document.getElementById('ep-unit').value,status:document.getElementById('ep-status').value,emailContent,assignments:[],createdAt:now(),updatedAt:now()});
+  saveProjects(); renderAll(); showToast(`"${name}" 등록됨`,'success');
+  document.getElementById('email-text').value=''; document.getElementById('email-preview').classList.add('hidden');
+}
+
+// ─────────────────────────────────────────────
 // TOAST
-// =====================================================================
-function showToast(msg, type='info') {
-  const colors = { success:'bg-emerald-500', error:'bg-red-500', warning:'bg-amber-500', info:'bg-indigo-500' };
-  const icons = {
-    success:'M5 13l4 4L19 7',
-    error:'M6 18L18 6M6 6l12 12',
-    warning:'M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z',
-    info:'M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z'
-  };
-  const el = document.createElement('div');
-  el.className = `anim-toast flex items-center gap-2 px-4 py-3 rounded-xl text-white text-sm shadow-xl max-w-xs pointer-events-auto ${colors[type]||colors.info}`;
-  el.innerHTML = `<svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="${icons[type]||icons.info}"/></svg>
-    <span>${msg}</span>`;
-  const container = document.getElementById('toast-container');
-  container.appendChild(el);
-  setTimeout(() => { el.style.transition='opacity 0.3s'; el.style.opacity='0'; setTimeout(()=>el.remove(),300); }, 3500);
+// ─────────────────────────────────────────────
+function showToast(msg,type='info'){
+  const colors={success:'bg-emerald-500',error:'bg-red-500',warning:'bg-amber-500',info:'bg-indigo-500'};
+  const el=document.createElement('div');
+  el.className=`anim-toast flex items-center gap-2 px-4 py-3 rounded-xl text-white text-sm shadow-xl max-w-xs pointer-events-auto ${colors[type]||colors.info}`;
+  el.textContent=msg;
+  document.getElementById('toast-container').appendChild(el);
+  setTimeout(()=>{el.style.transition='opacity .3s';el.style.opacity='0';setTimeout(()=>el.remove(),300);},3000);
 }
 
-// =====================================================================
-// INIT
-// =====================================================================
-function seedSampleData() {
-  const samples = [
-    { type:'RFI', name:'클라우드 인프라 전환 검토', client:'대한제조(주)',
-      summary:'온프레미스 서버 환경을 AWS 기반 클라우드로 전환하기 위한 사전 정보 수집 및 기술 역량 검증',
-      effort:2, effortUnit:'MM', startDate:'2024-03-01', endDate:'2024-04-30', status:'진행중' },
-    { type:'RFP', name:'모바일 뱅킹 앱 리뉴얼', client:'한국디지털은행',
-      summary:'iOS/Android 모바일 뱅킹 앱 UI/UX 전면 개선 및 신규 금융 서비스 기능 추가 개발',
-      effort:8, effortUnit:'MM', startDate:'2024-05-01', endDate:'2024-10-31', status:'대기' },
-    { type:'RFP', name:'HR 시스템 고도화', client:'글로벌HR솔루션',
-      summary:'기존 인사관리 시스템의 AI 기반 채용 자동화 및 성과 분석 모듈 추가 개발',
-      effort:5, effortUnit:'MM', startDate:'2024-06-01', endDate:'2024-09-30', status:'대기' },
-    { type:'실행중인 프로젝트', name:'물류 통합 플랫폼 구축', client:'한국물류(주)',
-      summary:'AI 기반 실시간 물류 추적, 재고 최적화, 자동 배차 시스템 통합 플랫폼 개발',
-      effort:15, effortUnit:'MM', startDate:'2023-11-01', endDate:'2024-08-31', status:'진행중' },
-    { type:'실행중인 프로젝트', name:'전자정부 민원 포털 개편', client:'행정안전부',
-      summary:'노후화된 민원 처리 시스템의 클라우드 전환 및 사용자 경험 개선, 모바일 최적화 대응',
-      effort:20, effortUnit:'MM', startDate:'2024-01-02', endDate:'2024-12-31', status:'진행중' },
+// ─────────────────────────────────────────────
+// SAMPLE DATA
+// ─────────────────────────────────────────────
+function seedMembers(){
+  members=[
+    {id:'m1',name:'김철수',role:'PM',team:'PMO',email:'kim@company.com',capacity:1,memo:''},
+    {id:'m2',name:'이영희',role:'아키텍트',team:'개발팀',email:'lee@company.com',capacity:1,memo:''},
+    {id:'m3',name:'박지수',role:'디자이너',team:'디자인팀',email:'park@company.com',capacity:1,memo:''},
+    {id:'m4',name:'최민준',role:'개발',team:'개발팀',email:'choi@company.com',capacity:1,memo:''},
+    {id:'m5',name:'오세진',role:'개발',team:'개발팀',email:'oh@company.com',capacity:1,memo:''},
   ];
-  samples.forEach(s => state.projects.push({ id:uid(), ...s, emailContent:'', createdAt:nowISO(), updatedAt:nowISO() }));
-  save();
+}
+function seedProjects(){
+  projects=[
+    {id:'p1',type:'RFI',name:'클라우드 인프라 전환 검토',client:'대한제조(주)',summary:'온프레미스 서버 환경을 AWS 기반 클라우드로 전환하기 위한 사전 정보 수집',effort:2,effortUnit:'MM',startDate:'2024-03-01',endDate:'2024-04-30',status:'진행중',emailContent:'',assignments:[{id:'a1',memberId:'m1',name:'김철수',role:'PM',effort:1,effortUnit:'MM'},{id:'a2',memberId:'m2',name:'이영희',role:'아키텍트',effort:1,effortUnit:'MM'}],createdAt:now(),updatedAt:now()},
+    {id:'p2',type:'RFP',name:'모바일 뱅킹 앱 리뉴얼',client:'한국디지털은행',summary:'iOS/Android 모바일 뱅킹 앱 UI/UX 전면 개선 및 신규 금융 서비스 기능 추가',effort:8,effortUnit:'MM',startDate:'2024-05-01',endDate:'2024-10-31',status:'대기',emailContent:'',assignments:[{id:'a3',memberId:'m3',name:'박지수',role:'디자이너',effort:3,effortUnit:'MM'},{id:'a4',memberId:'m4',name:'최민준',role:'개발',effort:5,effortUnit:'MM'}],createdAt:now(),updatedAt:now()},
+    {id:'p3',type:'RFP',name:'HR 시스템 고도화',client:'글로벌HR솔루션',summary:'AI 기반 채용 자동화 및 성과 분석 모듈 추가 개발',effort:5,effortUnit:'MM',startDate:'2024-06-01',endDate:'2024-09-30',status:'대기',emailContent:'',assignments:[{id:'a5',memberId:'m1',name:'김철수',role:'PM',effort:1,effortUnit:'MM'},{id:'a6',memberId:'m5',name:'오세진',role:'개발',effort:4,effortUnit:'MM'}],createdAt:now(),updatedAt:now()},
+    {id:'p4',type:'실행중인 프로젝트',name:'물류 통합 플랫폼 구축',client:'한국물류(주)',summary:'AI 기반 실시간 물류 추적, 재고 최적화, 자동 배차 시스템 통합 플랫폼 개발',effort:15,effortUnit:'MM',startDate:'2023-11-01',endDate:'2024-08-31',status:'진행중',emailContent:'',assignments:[{id:'a7',memberId:'m4',name:'최민준',role:'개발',effort:8,effortUnit:'MM'},{id:'a8',memberId:'m2',name:'이영희',role:'아키텍트',effort:4,effortUnit:'MM'},{id:'a9',memberId:'m3',name:'박지수',role:'디자이너',effort:3,effortUnit:'MM'}],createdAt:now(),updatedAt:now()},
+    {id:'p5',type:'실행중인 프로젝트',name:'전자정부 민원 포털 개편',client:'행정안전부',summary:'노후화된 민원 처리 시스템의 클라우드 전환 및 UX 개선',effort:20,effortUnit:'MM',startDate:'2024-01-02',endDate:'2024-12-31',status:'진행중',emailContent:'',assignments:[{id:'a10',memberId:'m1',name:'김철수',role:'PM',effort:3,effortUnit:'MM'},{id:'a11',memberId:'m5',name:'오세진',role:'개발',effort:10,effortUnit:'MM'}],createdAt:now(),updatedAt:now()},
+  ];
+}
+function seedPersonal(){
+  const y=new Date().getFullYear(), m=String(new Date().getMonth()+1).padStart(2,'0');
+  personal=[
+    {id:'pe1',title:'팀 회식',type:'기타',color:'#f97316',startDate:`${y}-${m}-15`,endDate:`${y}-${m}-15`,memo:''},
+    {id:'pe2',title:'여름 휴가',type:'휴가',color:'#06b6d4',startDate:`${y}-${m}-20`,endDate:`${y}-${m}-24`,memo:'제주도'},
+    {id:'pe3',title:'고객사 방문',type:'출장',color:'#8b5cf6',startDate:`${y}-${m}-10`,endDate:`${y}-${m}-11`,memo:'한국물류 본사'},
+  ];
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-  load();
-  if (state.projects.length === 0) seedSampleData();
+// ─────────────────────────────────────────────
+// INIT
+// ─────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded',()=>{
+  loadAll();
+  if(!members.length) { seedMembers(); saveMembers(); }
+  if(!projects.length) { seedProjects(); saveProjects(); }
+  if(!personal.length) { seedPersonal(); savePersonal(); }
   renderAll();
+  renderCalendar();
 });
-
-document.addEventListener('keydown', e => { if (e.key==='Escape') closeModal(); });
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'){
+    ['project','member','personal'].forEach(t=>{ if(!document.getElementById(t+'-modal').classList.contains('hidden')) closeModal(t); });
+  }
+});
 </script>
 </body>
 </html>

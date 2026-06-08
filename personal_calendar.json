@@ -1,0 +1,33 @@
+{
+  "version": "1.0",
+  "exported": "2026-06-08T14:54:42.223Z",
+  "personalEvents": [
+    {
+      "id": "pe1",
+      "title": "팀 회식",
+      "type": "기타",
+      "color": "#f97316",
+      "startDate": "2026-06-15",
+      "endDate": "2026-06-15",
+      "memo": ""
+    },
+    {
+      "id": "pe2",
+      "title": "여름 휴가",
+      "type": "휴가",
+      "color": "#06b6d4",
+      "startDate": "2026-06-20",
+      "endDate": "2026-06-24",
+      "memo": "제주도"
+    },
+    {
+      "id": "pe3",
+      "title": "고객사 방문",
+      "type": "출장",
+      "color": "#8b5cf6",
+      "startDate": "2026-06-10",
+      "endDate": "2026-06-11",
+      "memo": "한국물류 본사"
+    }
+  ]
+}

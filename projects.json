@@ -1,0 +1,179 @@
+{
+  "version": "1.0",
+  "exported": "2026-06-08T14:54:39.994Z",
+  "projects": [
+    {
+      "id": "p1",
+      "type": "RFI",
+      "name": "클라우드 인프라 전환 검토1111",
+      "client": "대한제조(주)",
+      "summary": "온프레미스 서버 환경을 AWS 기반 클라우드로 전환하기 위한 사전 정보 수집",
+      "effort": 2,
+      "effortUnit": "MM",
+      "startDate": "2024-03-01",
+      "endDate": "2024-04-30",
+      "status": "진행중",
+      "emailContent": "",
+      "assignments": [
+        {
+          "id": "a1",
+          "memberId": "m1",
+          "name": "김철수",
+          "role": "PM",
+          "effort": 1,
+          "effortUnit": "MM"
+        },
+        {
+          "id": "a2",
+          "memberId": "m2",
+          "name": "이영희",
+          "role": "아키텍트",
+          "effort": 1,
+          "effortUnit": "MM"
+        }
+      ],
+      "createdAt": "2026-06-08T14:54:27.060Z",
+      "updatedAt": "2026-06-08T14:54:27.060Z"
+    },
+    {
+      "id": "p2",
+      "type": "RFP",
+      "name": "모바일 뱅킹 앱 리뉴얼",
+      "client": "한국디지털은행",
+      "summary": "iOS/Android 모바일 뱅킹 앱 UI/UX 전면 개선 및 신규 금융 서비스 기능 추가",
+      "effort": 8,
+      "effortUnit": "MM",
+      "startDate": "2024-05-01",
+      "endDate": "2024-10-31",
+      "status": "대기",
+      "emailContent": "",
+      "assignments": [
+        {
+          "id": "a3",
+          "memberId": "m3",
+          "name": "박지수",
+          "role": "디자이너",
+          "effort": 3,
+          "effortUnit": "MM"
+        },
+        {
+          "id": "a4",
+          "memberId": "m4",
+          "name": "최민준",
+          "role": "개발",
+          "effort": 5,
+          "effortUnit": "MM"
+        }
+      ],
+      "createdAt": "2026-06-08T14:54:27.060Z",
+      "updatedAt": "2026-06-08T14:54:27.060Z"
+    },
+    {
+      "id": "p3",
+      "type": "RFP",
+      "name": "HR 시스템 고도화",
+      "client": "글로벌HR솔루션",
+      "summary": "AI 기반 채용 자동화 및 성과 분석 모듈 추가 개발",
+      "effort": 5,
+      "effortUnit": "MM",
+      "startDate": "2024-06-01",
+      "endDate": "2024-09-30",
+      "status": "대기",
+      "emailContent": "",
+      "assignments": [
+        {
+          "id": "a5",
+          "memberId": "m1",
+          "name": "김철수",
+          "role": "PM",
+          "effort": 1,
+          "effortUnit": "MM"
+        },
+        {
+          "id": "a6",
+          "memberId": "m5",
+          "name": "오세진",
+          "role": "개발",
+          "effort": 4,
+          "effortUnit": "MM"
+        }
+      ],
+      "createdAt": "2026-06-08T14:54:27.060Z",
+      "updatedAt": "2026-06-08T14:54:27.060Z"
+    },
+    {
+      "id": "p4",
+      "type": "실행중인 프로젝트",
+      "name": "물류 통합 플랫폼 구축",
+      "client": "한국물류(주)",
+      "summary": "AI 기반 실시간 물류 추적, 재고 최적화, 자동 배차 시스템 통합 플랫폼 개발",
+      "effort": 15,
+      "effortUnit": "MM",
+      "startDate": "2023-11-01",
+      "endDate": "2024-08-31",
+      "status": "진행중",
+      "emailContent": "",
+      "assignments": [
+        {
+          "id": "a7",
+          "memberId": "m4",
+          "name": "최민준",
+          "role": "개발",
+          "effort": 8,
+          "effortUnit": "MM"
+        },
+        {
+          "id": "a8",
+          "memberId": "m2",
+          "name": "이영희",
+          "role": "아키텍트",
+          "effort": 4,
+          "effortUnit": "MM"
+        },
+        {
+          "id": "a9",
+          "memberId": "m3",
+          "name": "박지수",
+          "role": "디자이너",
+          "effort": 3,
+          "effortUnit": "MM"
+        }
+      ],
+      "createdAt": "2026-06-08T14:54:27.060Z",
+      "updatedAt": "2026-06-08T14:54:27.060Z"
+    },
+    {
+      "id": "p5",
+      "type": "실행중인 프로젝트",
+      "name": "전자정부 민원 포털 개편",
+      "client": "행정안전부",
+      "summary": "노후화된 민원 처리 시스템의 클라우드 전환 및 UX 개선",
+      "effort": 20,
+      "effortUnit": "MM",
+      "startDate": "2024-01-02",
+      "endDate": "2024-12-31",
+      "status": "진행중",
+      "emailContent": "",
+      "assignments": [
+        {
+          "id": "a10",
+          "memberId": "m1",
+          "name": "김철수",
+          "role": "PM",
+          "effort": 3,
+          "effortUnit": "MM"
+        },
+        {
+          "id": "a11",
+          "memberId": "m5",
+          "name": "오세진",
+          "role": "개발",
+          "effort": 10,
+          "effortUnit": "MM"
+        }
+      ],
+      "createdAt": "2026-06-08T14:54:27.060Z",
+      "updatedAt": "2026-06-08T14:54:27.060Z"
+    }
+  ]
+}
