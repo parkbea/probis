@@ -81,7 +81,12 @@ function renderCard(p) {
     draggable="true" ondragstart="dragStart(event,'${p.id}')" ondragend="dragEnd(event)" onclick="openEditModal('${p.id}')">
     <div class="flex items-start justify-between gap-2 mb-1.5">
       <h3 class="text-sm font-semibold text-slate-800 leading-snug flex-1 line-clamp-2">${esc(p.name)}</h3>
-      <span class="text-xs px-1.5 py-0.5 rounded-full font-medium flex-shrink-0 ${sc[p.status]||''}">${p.status}</span>
+      <div class="flex items-center gap-1 flex-shrink-0">
+        <button onclick="copyProject(event,'${p.id}')" title="복사" class="p-0.5 text-slate-300 hover:text-indigo-400 transition-colors">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+        </button>
+        <span class="text-xs px-1.5 py-0.5 rounded-full font-medium ${sc[p.status]||''}">${p.status}</span>
+      </div>
     </div>
     ${[p.opEpicUrl, p.opEffortUrl, p.opQaUrl].some(Boolean) ? `<div class="flex gap-1 mb-1.5">${p.opEpicUrl?'<span class="text-xs bg-blue-50 text-blue-500 px-1.5 py-0.5 rounded font-medium">Epic</span>':''}${p.opEffortUrl?'<span class="text-xs bg-indigo-50 text-indigo-500 px-1.5 py-0.5 rounded font-medium">공수</span>':''}${p.opQaUrl?'<span class="text-xs bg-violet-50 text-violet-500 px-1.5 py-0.5 rounded font-medium">QA</span>':''}</div>` : ''}
     <div class="flex items-center justify-between text-xs text-slate-400 pt-2 border-t border-slate-50">

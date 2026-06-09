@@ -1,4 +1,27 @@
 // ── 프로젝트 모달 ─────────────────────────────
+function copyProject(e, id) {
+  e.stopPropagation();
+  const src = projects.find(x => x.id === id); if (!src) return;
+  currentProjectId = null;
+  modalAssignments = (src.assignments||[]).map(a => ({...a, id: uid()}));
+  document.getElementById('project-modal-title').textContent = '프로젝트 복사';
+  document.getElementById('m-type').value       = src.type;
+  document.getElementById('m-status').value     = src.status;
+  document.getElementById('m-name').value       = src.name + ' (복사)';
+  document.getElementById('m-start').value      = src.startDate||'';
+  document.getElementById('m-end').value        = src.endDate||'';
+  document.getElementById('m-effort').value     = src.effort||'';
+  document.getElementById('m-unit').value       = src.effortUnit||'MM';
+  document.getElementById('m-email').value      = src.emailContent||'';
+  document.getElementById('m-epic-url').value   = '';
+  document.getElementById('m-effort-url').value = '';
+  document.getElementById('m-qa-url').value     = '';
+  document.getElementById('m-meta').classList.add('hidden');
+  const btn = document.getElementById('btn-delete'); btn.classList.add('hidden'); btn.style.display = '';
+  refreshMemberPicker(); renderAssignments();
+  showModalEl('project-modal');
+}
+
 function refreshMemberPicker() {
   const sel = document.getElementById('member-pick');
   sel.innerHTML = '<option value="">-- 팀원 선택 --</option>';

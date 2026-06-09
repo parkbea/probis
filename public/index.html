@@ -37,6 +37,9 @@
       <button onclick="toggleEmailPanel()" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-violet-600 hover:bg-violet-500 rounded-lg text-xs font-medium transition-colors">
         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>이메일 분석
       </button>
+      <button onclick="openWeeklyModal()" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-teal-600 hover:bg-teal-500 rounded-lg text-xs font-medium transition-colors">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>주간보고
+      </button>
       <button onclick="toggleSettingsPanel()" title="설정" class="p-1.5 bg-slate-700 hover:bg-slate-600 rounded-lg text-slate-300 hover:text-white transition-colors">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><circle cx="12" cy="12" r="3" stroke-width="2"/></svg>
       </button>
@@ -396,6 +399,68 @@
   </div>
 </div>
 
+<!-- WEEKLY REPORT MODAL -->
+<div id="weekly-modal" class="hidden fixed inset-0 z-50 flex items-start justify-center p-4 pt-10 overflow-y-auto" style="background:rgba(15,23,42,.55);backdrop-filter:blur(3px)">
+  <div class="modal-backdrop absolute inset-0" onclick="closeModal('weekly')"></div>
+  <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-7xl overflow-hidden anim-slide">
+    <div class="sticky top-0 bg-white z-10 flex items-center justify-between px-6 py-4 border-b border-slate-100">
+      <h2 class="text-base font-bold text-slate-800 flex items-center gap-2">
+        <svg class="w-5 h-5 text-teal-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+        주간업무보고 생성
+      </h2>
+      <button onclick="closeModal('weekly')" class="text-slate-400 hover:text-slate-600"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button>
+    </div>
+    <div class="px-6 py-4">
+      <!-- 기간 -->
+      <div class="flex items-center gap-4 mb-4 bg-slate-50 rounded-xl px-4 py-2.5 flex-wrap">
+        <div class="flex items-center gap-2">
+          <span class="text-xs font-bold text-teal-600 whitespace-nowrap">금주</span>
+          <input type="date" id="wr-from" onchange="updateNextWeek()" class="px-2 py-1.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-teal-400">
+          <span class="text-slate-400 text-sm">~</span>
+          <input type="date" id="wr-to"   class="px-2 py-1.5 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-teal-400">
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="text-xs font-bold text-indigo-500 whitespace-nowrap">차주</span>
+          <span id="wr-next-from" class="text-sm text-slate-600 font-medium"></span>
+          <span class="text-slate-400 text-sm">~</span>
+          <span id="wr-next-to"   class="text-sm text-slate-600 font-medium"></span>
+        </div>
+        <span class="ml-auto text-xs text-slate-400">완료된 프로젝트는 제외됩니다</span>
+      </div>
+      <!-- 테이블 -->
+      <div class="overflow-x-auto rounded-xl border border-slate-200">
+        <table class="w-full">
+          <thead>
+            <tr class="bg-slate-800 text-white text-xs">
+              <th class="px-3 py-2.5 text-left font-semibold">프로젝트명</th>
+              <th class="px-3 py-2.5 text-left font-semibold">금주 내용</th>
+              <th class="px-3 py-2.5 text-left font-semibold">차주 진행 내용</th>
+              <th class="px-3 py-2.5 text-left font-semibold">담당자</th>
+              <th class="px-3 py-2.5 text-left font-semibold">시작일</th>
+              <th class="px-3 py-2.5 text-left font-semibold">종료일</th>
+              <th class="px-3 py-2.5 text-left font-semibold">비고</th>
+            </tr>
+          </thead>
+          <tbody id="wr-rows"></tbody>
+        </table>
+      </div>
+    </div>
+    <div class="sticky bottom-0 bg-white border-t border-slate-100 px-6 py-3 flex items-center justify-between">
+      <p class="text-xs text-slate-400">
+        Node.js / Python 서버 모두 실제 <span class="font-medium text-slate-500">.pptx 파워포인트 파일</span>을 생성합니다.
+      </p>
+      <div class="flex gap-2">
+        <button onclick="closeModal('weekly')" class="px-4 py-2 text-slate-500 hover:bg-slate-100 text-sm font-medium rounded-lg transition-colors">취소</button>
+        <button id="wr-gen-btn" onclick="generateWeeklyReport()"
+          class="inline-flex items-center gap-1.5 px-5 py-2 bg-teal-600 hover:bg-teal-500 text-white text-sm font-semibold rounded-lg transition-colors">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+          보고서 생성
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div id="toast-container" class="fixed bottom-5 right-5 z-50 space-y-2 pointer-events-none"></div>
 
 <!-- JS: 의존성 순서대로 로드 -->
@@ -409,5 +474,6 @@
 <script src="js/modal.js"></script>
 <script src="js/email.js"></script>
 <script src="js/main.js"></script>
+<script src="js/weekly.js"></script>
 </body>
 </html>
