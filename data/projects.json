@@ -1,11 +1,11 @@
 {
   "version": "1.0",
-  "exported": "2026-06-08T14:54:39.994Z",
+  "exported": "2026-06-09T05:33:21.763Z",
   "projects": [
     {
       "id": "p1",
       "type": "RFI",
-      "name": "클라우드 인프라 전환 검토1111",
+      "name": "클라우드 인프라 전환 검토1111222",
       "client": "대한제조(주)",
       "summary": "온프레미스 서버 환경을 AWS 기반 클라우드로 전환하기 위한 사전 정보 수집",
       "effort": 2,
@@ -33,7 +33,7 @@
         }
       ],
       "createdAt": "2026-06-08T14:54:27.060Z",
-      "updatedAt": "2026-06-08T14:54:27.060Z"
+      "updatedAt": "2026-06-09T00:26:34.090Z"
     },
     {
       "id": "p2",
@@ -174,6 +174,40 @@
       ],
       "createdAt": "2026-06-08T14:54:27.060Z",
       "updatedAt": "2026-06-08T14:54:27.060Z"
+    },
+    {
+      "id": "id_1780967268783_9t3qo2",
+      "type": "RFI",
+      "name": "fdsf",
+      "client": "",
+      "summary": "hppt://openproject.xxx.co.jp/project/123 hppt://openproject.xxx.co.jp/project/999 hppt://openproject.xxx.co.jp/project/777",
+      "startDate": "",
+      "endDate": "",
+      "effort": 0,
+      "effortUnit": "MM",
+      "status": "대기",
+      "emailContent": "안녕하세요 . \n러안러ㅣ어니러ㅣㅏㄴㅇㄹ\nhppt://openproject.xxx.co.jp/project/123\n\nfjidsjifji::: \nhppt://openproject.xxx.co.jp/project/999\n\nfjidsjifji::: \nhppt://openproject.xxx.co.jp/project/777",
+      "opEpicUrl": "",
+      "assignments": [],
+      "createdAt": "2026-06-09T01:07:48.783Z",
+      "updatedAt": "2026-06-09T01:07:48.783Z"
+    },
+    {
+      "id": "id_1780983183354_sbl2dg",
+      "type": "RFI",
+      "name": "ㅌㅌㅌㅌㅌ",
+      "startDate": "",
+      "endDate": "",
+      "effort": 0,
+      "effortUnit": "MM",
+      "status": "대기",
+      "emailContent": "안녕하세요. \n\n123입니다.\nhttp://openproject.xxx.co.jp/projects/123\n\n그리고 \nhttp://openproject.xxx.co.jp/projects/456\n\nand \nhttp://openproject.xxx.co.jp/projects/46677",
+      "opEpicUrl": "http://openproject.xxx.co.jp/projects/123",
+      "opEffortUrl": "http://openproject.xxx.co.jp/projects/456",
+      "opQaUrl": "http://openproject.xxx.co.jp/projects/46677",
+      "assignments": [],
+      "createdAt": "2026-06-09T05:33:03.354Z",
+      "updatedAt": "2026-06-09T05:33:21.763Z"
     }
   ]
 }

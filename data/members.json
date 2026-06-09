@@ -1,0 +1,24 @@
+{
+  "version": "1.0",
+  "exported": "2026-06-09T04:48:03.527Z",
+  "members": [
+    {
+      "id": "m4",
+      "name": "최민준",
+      "role": "개발",
+      "team": "개발팀",
+      "email": "choi@company.com",
+      "capacity": 1,
+      "memo": ""
+    },
+    {
+      "id": "m5",
+      "name": "오세진",
+      "role": "개발",
+      "team": "개발팀",
+      "email": "oh@company.com",
+      "capacity": 1,
+      "memo": ""
+    }
+  ]
+}
