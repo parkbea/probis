@@ -39,7 +39,7 @@ function deleteArchivedProject(e, id) {
 function updateArchiveBadge() {
   const badge = document.getElementById('archive-badge');
   if (!badge) return;
-  const n = projects.filter(p => p.archived).length;
+  const n = projects.filter(isDone).length;
   badge.textContent = n;
   badge.classList.toggle('hidden', n === 0);
 }
@@ -52,7 +52,7 @@ function openArchiveModal() {
 
 // 보관 프로젝트 목록 렌더
 function renderArchiveList() {
-  const arr = projects.filter(p => p.archived)
+  const arr = projects.filter(isDone)
     .sort((a, b) => String(b.updatedAt || '').localeCompare(String(a.updatedAt || '')));
   const el  = document.getElementById('archive-list');
   const cnt = document.getElementById('archive-count');

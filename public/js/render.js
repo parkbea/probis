@@ -1,10 +1,12 @@
 // ── 필터 ─────────────────────────────────────
-// 메인 화면용 = 보관(완료)되지 않은 프로젝트
-function activeProjects() { return projects.filter(p => !p.archived); }
+// 완료 처리된(보관된) 프로젝트 판정 = archived 플래그 OR 상태가 '완료'
+function isDone(p) { return !!p.archived || p.status === '완료'; }
+// 메인 화면용 = 완료/보관되지 않은 프로젝트
+function activeProjects() { return projects.filter(p => !isDone(p)); }
 function filtered() {
   const q = searchTerm(), sf = statusFilter();
   return projects.filter(p => {
-    if (p.archived) return false;
+    if (isDone(p)) return false;
     const ms = !q  || p.name.toLowerCase().includes(q);
     const mf = !sf || p.status === sf;
     return ms && mf;
@@ -243,7 +245,7 @@ function renderCalendar() {
 
   const evMap = {};
   const addEv = (ds, obj) => { if (!evMap[ds]) evMap[ds]=[]; evMap[ds].push(obj); };
-  projects.filter(p => calTypeFilter[p.type] && !p.archived).forEach(p => {
+  projects.filter(p => calTypeFilter[p.type] && !isDone(p)).forEach(p => {
     if (p.startDate) addEv(p.startDate, { kind:'project', label:'▶ '+p.name, id:p.id, color:tc[p.type]||'#6366f1' });
     if (p.endDate && p.endDate !== p.startDate) addEv(p.endDate, { kind:'project', label:'■ '+p.name, id:p.id, color:tc[p.type]||'#6366f1' });
   });
