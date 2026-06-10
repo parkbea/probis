@@ -65,9 +65,32 @@ async function handleOpSync(req, res) {
     return;
   }
 
-  // 해당 사용자들이 멤버로 있는 프로젝트 조회 (조회 전용)
-  const userIds    = opUsers.map(u => u.opId);
-  const filter     = encodeURIComponent(JSON.stringify([{ principal: { operator: '=', values: userIds } }]));
+  // 사용자에게 '할당된(assignee)' 작업이 있는 프로젝트만 조회
+  const userIds  = opUsers.map(u => u.opId);
+  const wpFilter = encodeURIComponent(JSON.stringify([{ assignee: { operator: '=', values: userIds } }]));
+  const wpResult = await opRequest(`/api/v3/work_packages?filters=${wpFilter}&pageSize=200`, baseUrl, apiKey);
+
+  if (wpResult.status !== 200) {
+    res.writeHead(wpResult.status);
+    res.end(JSON.stringify({ error: wpResult.body.message || 'OpenProject 작업 조회 실패' }));
+    return;
+  }
+
+  // 작업이 속한 프로젝트 ID만 추출 (중복 제거)
+  const projIds = [...new Set(
+    (wpResult.body._embedded?.elements || [])
+      .map(wp => (wp._links?.project?.href || '').replace(/\/$/, '').split('/').pop())
+      .filter(Boolean)
+  )];
+
+  if (projIds.length === 0) {
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({ projects: [], opUsers, message: '할당된 프로젝트가 없습니다.' }));
+    return;
+  }
+
+  // 그 프로젝트들의 상세 정보 조회
+  const filter     = encodeURIComponent(JSON.stringify([{ id: { operator: '=', values: projIds } }]));
   const projResult = await opRequest(`/api/v3/projects?filters=${filter}&pageSize=200`, baseUrl, apiKey);
 
   if (projResult.status !== 200) {

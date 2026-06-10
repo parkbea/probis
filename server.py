@@ -506,11 +506,32 @@ class Handler(http.server.SimpleHTTPRequestHandler):
                 'error': '팀원 관리에서 OpenProject 사용자 ID를 먼저 입력해주세요.',
             }); return
 
-        # 2. 해당 사용자들이 멤버인 프로젝트 조회
-        user_ids  = [u['opId'] for u in op_users]
-        flt       = quote(json.dumps([{'principal': {'operator': '=', 'values': user_ids}}]))
+        # 2. 사용자에게 '할당된(assignee)' 작업이 있는 프로젝트만 조회
+        user_ids = [u['opId'] for u in op_users]
+        wp_flt   = quote(json.dumps([{'assignee': {'operator': '=', 'values': user_ids}}]))
         try:
-            status, body = op_call(f'/api/v3/projects?filters={flt}&pageSize=200', base_url, api_key)
+            status, wp_body = op_call(f'/api/v3/work_packages?filters={wp_flt}&pageSize=200', base_url, api_key)
+        except Exception as e:
+            self._json_response(502, {'error': f'OpenProject 작업 조회 실패: {e}'}); return
+
+        # 작업이 속한 프로젝트 ID만 추출 (중복 제거)
+        proj_ids = []
+        for wp in wp_body.get('_embedded', {}).get('elements', []):
+            href = (wp.get('_links', {}).get('project') or {}).get('href', '')
+            pid  = href.rstrip('/').split('/')[-1] if href else ''
+            if pid and pid not in proj_ids:
+                proj_ids.append(pid)
+
+        if not proj_ids:
+            self._json_response(200, {
+                'projects': [], 'opUsers': op_users,
+                'message': '할당된 프로젝트가 없습니다.',
+            }); return
+
+        # 그 프로젝트들의 상세 정보 조회
+        pj_flt = quote(json.dumps([{'id': {'operator': '=', 'values': proj_ids}}]))
+        try:
+            status, body = op_call(f'/api/v3/projects?filters={pj_flt}&pageSize=200', base_url, api_key)
         except Exception as e:
             self._json_response(502, {'error': f'OpenProject 프로젝트 조회 실패: {e}'}); return
 
