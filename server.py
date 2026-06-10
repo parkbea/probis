@@ -517,13 +517,20 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         except Exception as e:
             self._json_response(502, {'error': f'OpenProject 작업 조회 실패: {e}'}); return
 
-        # 작업이 속한 프로젝트 ID만 추출 (중복 제거)
-        proj_ids = []
+        # 프로젝트별로 '우리 직원 중 담당자(opId)' 모으기
+        proj_assignees = {}
         for wp in wp_body.get('_embedded', {}).get('elements', []):
-            href = (wp.get('_links', {}).get('project') or {}).get('href', '')
-            pid  = href.rstrip('/').split('/')[-1] if href else ''
-            if pid and pid not in proj_ids:
-                proj_ids.append(pid)
+            links = wp.get('_links', {})
+            phref = (links.get('project') or {}).get('href', '')
+            ahref = (links.get('assignee') or {}).get('href', '')
+            pid   = phref.rstrip('/').split('/')[-1] if phref else ''
+            aid   = ahref.rstrip('/').split('/')[-1] if ahref else ''
+            if not pid:
+                continue
+            proj_assignees.setdefault(pid, set())
+            if aid:
+                proj_assignees[pid].add(aid)
+        proj_ids = list(proj_assignees.keys())
 
         if not proj_ids:
             self._json_response(200, {
@@ -555,6 +562,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         now_iso = datetime.now(timezone.utc).isoformat()
         mapped = [{
             'id':           'op_' + str(p['id']),
+            'opUserIds':    list(proj_assignees.get(str(p['id']), set())),
             'type':         '실행중인 프로젝트',
             'name':         p.get('name', ''),
             'startDate':    p.get('startDate') or '',

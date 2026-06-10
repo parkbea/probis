@@ -270,7 +270,12 @@
           </select></div>
         <div><label class="block text-xs font-medium text-slate-500 mb-1">진행 상태 *</label>
           <select id="m-status" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 bg-white">
-            <option>대기</option><option>진행중</option><option>완료</option>
+            <optgroup label="진행">
+              <option>대기</option><option>진행중</option>
+            </optgroup>
+            <optgroup label="종료(완료함)">
+              <option>개발완료</option><option>중지</option><option>보류</option><option>리젝</option>
+            </optgroup>
           </select></div>
       </div>
       <div><label class="block text-xs font-medium text-slate-500 mb-1">프로젝트명(원제) * <span class="text-slate-300 font-normal">(OpenProject 원본 / 일본어)</span></label>

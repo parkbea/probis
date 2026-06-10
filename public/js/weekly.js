@@ -34,7 +34,7 @@ function openWeeklyModal() {
 }
 
 function renderWeeklyTable() {
-  const active = projects.filter(p => p.status !== '완료');
+  const active = projects.filter(p => !isDone(p));
   const el = document.getElementById('wr-rows');
   if (!active.length) {
     el.innerHTML = `<tr><td colspan="7" class="text-center text-slate-400 py-10 text-sm">진행 중인 프로젝트가 없습니다.</td></tr>`;
@@ -83,7 +83,7 @@ function renderWeeklyTable() {
 async function generateWeeklyReport() {
   const from   = document.getElementById('wr-from').value;
   const to     = document.getElementById('wr-to').value;
-  const active = projects.filter(p => p.status !== '완료');
+  const active = projects.filter(p => !isDone(p));
 
   const rows = active.map(p => ({
     name:      displayName(p),

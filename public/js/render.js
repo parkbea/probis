@@ -1,6 +1,8 @@
 // ── 필터 ─────────────────────────────────────
-// 완료 처리된(보관된) 프로젝트 판정 = archived 플래그 OR 상태가 '완료'
-function isDone(p) { return !!p.archived || p.status === '완료'; }
+// 종료(완료) 상태값 — 완료함으로 이동되는 상태들 ('완료'는 구버전 호환)
+const DONE_STATUSES = ['개발완료', '중지', '보류', '리젝', '완료'];
+// 완료 처리된(보관된) 프로젝트 판정 = archived 플래그 OR 종료 상태
+function isDone(p) { return !!p.archived || DONE_STATUSES.includes(p.status); }
 // 메인 화면용 = 완료/보관되지 않은 프로젝트
 function activeProjects() { return projects.filter(p => !isDone(p)); }
 // 목록 대표 표시명 = 서브타이틀(한글) 우선, 없으면 원제(OpenProject name)
@@ -110,7 +112,7 @@ function renderCard(p) {
   </div>`;
 }
 function dDay(p) {
-  if (!p.endDate || p.status === '완료') return null;
+  if (!p.endDate || isDone(p)) return null;
   const today = new Date(); today.setHours(0,0,0,0);
   const diff = Math.ceil((new Date(p.endDate) - today) / 86400000);
   if (diff < 0)   return { txt:`${Math.abs(diff)}일 지연`, cls:'text-red-500' };

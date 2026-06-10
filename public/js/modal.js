@@ -94,7 +94,7 @@ function saveProjectModal() {
     opQaUrl:      document.getElementById('m-qa-url').value.trim(),
     assignments:  modalAssignments,
   };
-  d.archived = d.status === '완료';   // 상태=완료면 보관함으로, 아니면 메인으로 (archived 동기화)
+  d.archived = DONE_STATUSES.includes(d.status);   // 종료 상태면 보관함으로, 아니면 메인으로 (archived 동기화)
   if (currentProjectId) {
     const p = projects.find(x => x.id === currentProjectId);
     Object.assign(p, d, { updatedAt: now() });

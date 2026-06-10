@@ -77,12 +77,16 @@ async function handleOpSync(req, res) {
     return;
   }
 
-  // 작업이 속한 프로젝트 ID만 추출 (중복 제거)
-  const projIds = [...new Set(
-    (wpResult.body._embedded?.elements || [])
-      .map(wp => (wp._links?.project?.href || '').replace(/\/$/, '').split('/').pop())
-      .filter(Boolean)
-  )];
+  // 프로젝트별로 '우리 직원 중 담당자(opId)' 모으기 → projAssignees
+  const projAssignees = {};
+  (wpResult.body._embedded?.elements || []).forEach(wp => {
+    const pid = (wp._links?.project?.href  || '').replace(/\/$/, '').split('/').pop();
+    const aid = (wp._links?.assignee?.href || '').replace(/\/$/, '').split('/').pop();
+    if (!pid) return;
+    projAssignees[pid] = projAssignees[pid] || new Set();
+    if (aid) projAssignees[pid].add(aid);
+  });
+  const projIds = Object.keys(projAssignees);
 
   if (projIds.length === 0) {
     res.writeHead(200, { 'Content-Type': 'application/json' });
@@ -109,6 +113,7 @@ async function handleOpSync(req, res) {
 
   const mapped = opProjects.map(p => ({
     id:          'op_' + p.id,
+    opUserIds:   [...(projAssignees[String(p.id)] || [])],
     type:        '실행중인 프로젝트',
     name:        p.name,
     startDate:   p.startDate || '',

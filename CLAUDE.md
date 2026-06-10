@@ -117,8 +117,8 @@ python server.py   # Python
 { "id":"p1", "type":"RFI|RFP|실행중인 프로젝트", "name":"", "subtitle":"", "remark":"", "client":"",
   "summary":"", "effort":5, "effortUnit":"MM|MD", "effortDetail":"",
   "startDate":"YYYY-MM-DD", "endDate":"YYYY-MM-DD",
-  "status":"대기|진행중|완료", "archived":false, "emailContent":"",
-  "opEpicUrl":"", "opEffortUrl":"", "opQaUrl":"",
+  "status":"대기|진행중|개발완료|중지|보류|리젝", "archived":false, "emailContent":"",
+  "opEpicUrl":"", "opEffortUrl":"", "opQaUrl":"", "opUserIds":["42"],
   "assignments":[{"id":"a1","memberId":"m1","name":"","role":"","effort":1,"effortUnit":"MM"}],
   "createdAt":"ISO", "updatedAt":"ISO" }
 ```
@@ -126,7 +126,9 @@ python server.py   # Python
 - `subtitle` — 한글 대표 표시명. 칸반·간트·캘린더·보관함·주간보고 등 목록에 우선 표시 (없으면 `name`으로 폴백, `displayName()`)
 - `remark` — 비고 (자유 텍스트)
 - `effortDetail` — 공수 산정 근거·세부 내역 (자유 텍스트)
-- `archived` — `true`면 완료 보관함으로 이동, 메인 화면에서 숨김 (복원 시 `false`)
+- `status` — 진행: `대기`·`진행중` / 종료(완료함): `개발완료`(기본)·`중지`·`보류`·`리젝`
+- `archived` — 종료 상태이거나 `true`면 완료 보관함으로 이동·메인 숨김 (`isDone()` 판정, `DONE_STATUSES`)
+- `opUserIds` — OP 동기화 시 그 프로젝트의 담당자(opId) 목록. 특정 직원 갱신 시 "사라진 프로젝트 자동 완료처리"에 사용
 - `opEpicUrl` / `opEffortUrl` / `opQaUrl` — OpenProject Epic·공수·QA 링크
 
 ### Member

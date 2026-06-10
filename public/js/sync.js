@@ -50,24 +50,25 @@ async function syncFromOpenProject(opId, label) {
       return;
     }
 
-    if (data.projects.length === 0) {
+    // 결과가 비어도 (특정 직원 갱신이면) 사라진 프로젝트 완료처리를 위해 계속 진행
+    if (data.projects.length === 0 && !opId) {
       showToast(data.message || '동기화할 프로젝트가 없습니다', 'warning');
       return;
     }
 
-    // 기존 projects와 병합: opEpicUrl 기준으로 매칭 (해당 직원 프로젝트만 갱신/추가, 나머지는 그대로)
-    let added = 0, updated = 0;
+    let added = 0, updated = 0, closed = 0;
 
     data.projects.forEach(opProj => {
-      const existing = opProj.opEpicUrl
-        ? projects.find(p => p.opEpicUrl === opProj.opEpicUrl)
-        : projects.find(p => p.id === opProj.id);
+      // id(op_프로젝트번호) 우선 매칭 → 중복 추가 방지, 없으면 opEpicUrl
+      const existing = projects.find(p => p.id === opProj.id)
+        || (opProj.opEpicUrl ? projects.find(p => p.opEpicUrl === opProj.opEpicUrl) : null);
 
       if (existing) {
-        // 원제·날짜만 갱신, 사용자가 입력한 서브타이틀·비고·공수 등은 유지
+        // 원제·날짜·담당자만 갱신, 사용자가 입력한 서브타이틀·비고·공수는 유지
         existing.name      = opProj.name;
         if (opProj.startDate) existing.startDate = opProj.startDate;
         if (opProj.endDate)   existing.endDate   = opProj.endDate;
+        if (opProj.opUserIds) existing.opUserIds = opProj.opUserIds;
         existing.updatedAt = opProj.updatedAt;
         updated++;
       } else {
@@ -76,11 +77,26 @@ async function syncFromOpenProject(opId, label) {
       }
     });
 
+    // 특정 직원만 갱신: 그 직원 담당이었는데 이번 결과에 없는 진행 프로젝트는 완료(개발완료) 처리
+    if (opId) {
+      const returned = new Set(data.projects.map(p => p.id));
+      projects.forEach(p => {
+        if (String(p.id).startsWith('op_') && !isDone(p)
+            && (p.opUserIds || []).map(String).includes(String(opId))
+            && !returned.has(p.id)) {
+          p.status    = '개발완료';
+          p.archived  = true;
+          p.updatedAt = now();
+          closed++;
+        }
+      });
+    }
+
     saveProjects();
     renderAll();
 
     const who = label ? `${label} — ` : '';
-    showToast(`${who}동기화 완료 — 신규 ${added}개 추가, ${updated}개 업데이트`, 'success');
+    showToast(`${who}동기화 완료 — 신규 ${added}, 갱신 ${updated}${closed ? `, 완료처리 ${closed}` : ''}`, 'success');
   } catch (e) {
     showToast('서버 연결 오류: ' + e.message, 'error');
   } finally {

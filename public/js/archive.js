@@ -7,11 +7,11 @@ function archiveProject(e, id) {
   if (e) e.stopPropagation();
   const p = projects.find(x => x.id === id); if (!p) return;
   p.archived  = true;
-  p.status    = '완료';
+  p.status    = '개발완료';   // 기본 종료 상태 (이후 모달에서 중지/보류/리젝으로 변경 가능)
   p.updatedAt = now();
   saveProjects(); renderAll();
   if (!document.getElementById('archive-modal').classList.contains('hidden')) renderArchiveList();
-  showToast(`"${p.name}" 완료 처리됨`, 'success');
+  showToast(`"${displayName(p)}" 개발완료 처리됨`, 'success');
 }
 
 // 보관된 프로젝트를 다시 메인으로 복원
@@ -65,12 +65,14 @@ function renderArchiveList() {
 
   const tc = { 'RFI':'border-blue-400', 'RFP':'border-amber-400', '실행중인 프로젝트':'border-emerald-400' };
   const tl = { 'RFI':'RFI', 'RFP':'RFP', '실행중인 프로젝트':'실행' };
+  const sc = { '개발완료':'bg-emerald-100 text-emerald-700', '중지':'bg-rose-100 text-rose-700', '보류':'bg-amber-100 text-amber-700', '리젝':'bg-slate-200 text-slate-600', '완료':'bg-emerald-100 text-emerald-700' };
 
   el.innerHTML = arr.map(p => `
     <div class="border border-slate-200 border-l-4 ${tc[p.type]||''} rounded-xl px-3 py-2.5 flex items-center gap-3 bg-white">
       <div class="flex-1 min-w-0 cursor-pointer" onclick="closeModal('archive'); openEditModal('${p.id}')">
         <div class="flex items-center gap-2">
           <span class="text-xs px-1.5 py-0.5 rounded bg-slate-100 text-slate-500 font-medium flex-shrink-0">${tl[p.type]||esc(p.type)}</span>
+          <span class="text-xs px-1.5 py-0.5 rounded font-medium flex-shrink-0 ${sc[p.status]||'bg-slate-100 text-slate-500'}">${esc(p.status||'완료')}</span>
           <p class="text-sm font-semibold text-slate-700 truncate">${esc(displayName(p))}</p>
         </div>
         <p class="text-xs text-slate-400 mt-0.5">
