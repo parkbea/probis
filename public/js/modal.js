@@ -135,7 +135,7 @@ function updateAssign(aid, field, val) {
   updateAssignTotal();
 }
 function updateAssignTotal() {
-  const total = modalAssignments.reduce((s,a) => s + (a.effortUnit==='MD' ? a.effort/20 : a.effort), 0);
+  const total = modalAssignments.reduce((s,a) => s + toMM(a.effort, a.effortUnit), 0);
   document.getElementById('modal-assign-total').textContent = total.toFixed(1) + ' MM';
 }
 function renderAssignments() {
@@ -151,7 +151,7 @@ function renderAssignments() {
       <input type="number" value="${a.effort}" step="0.5" min="0" onchange="updateAssign('${a.id}','effort',this.value)"
         class="w-14 px-2 py-1 border border-slate-200 rounded text-xs focus:outline-none focus:ring-1 focus:ring-indigo-400">
       <select onchange="updateAssign('${a.id}','effortUnit',this.value)" class="px-1 py-1 border border-slate-200 rounded text-xs bg-white focus:outline-none">
-        <option ${a.effortUnit==='MM'?'selected':''}>MM</option><option ${a.effortUnit==='MD'?'selected':''}>MD</option>
+        <option ${a.effortUnit==='MM'?'selected':''}>MM</option><option ${a.effortUnit==='MW'?'selected':''}>MW</option><option ${a.effortUnit==='MD'?'selected':''}>MD</option>
       </select>
       <button onclick="removeAssignment('${a.id}')" class="text-slate-300 hover:text-red-400 transition-colors flex-shrink-0">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>

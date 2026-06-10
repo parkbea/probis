@@ -28,6 +28,13 @@ function openUrlField(id) {
   if (!/^https?:\/\//i.test(v)) v = 'http://' + v;
   window.open(v, '_blank', 'noopener');
 }
+// 공수 단위를 MM(맨먼스) 기준으로 환산 — 1개월 = 4주(MW) = 20일(MD)
+function toMM(effort, unit) {
+  const e = parseFloat(effort) || 0;
+  if (unit === 'MD') return e / 20;
+  if (unit === 'MW') return e / 4;
+  return e;   // MM
+}
 function searchTerm()  { return document.getElementById('search-input').value.toLowerCase(); }
 function statusFilter(){ return document.getElementById('status-filter').value; }
 

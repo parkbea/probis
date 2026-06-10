@@ -115,7 +115,7 @@ python server.py   # Python
 ### Project
 ```json
 { "id":"p1", "type":"RFI|RFP|실행중인 프로젝트", "name":"", "subtitle":"", "remark":"", "client":"",
-  "summary":"", "effort":5, "effortUnit":"MM|MD", "effortDetail":"",
+  "summary":"", "effort":5, "effortUnit":"MM|MW|MD", "effortDetail":"",
   "startDate":"YYYY-MM-DD", "endDate":"YYYY-MM-DD",
   "status":"대기|진행중|개발완료|중지|보류|리젝", "archived":false, "emailContent":"",
   "opEpicUrl":"", "opEffortUrl":"", "opQaUrl":"", "opUserIds":["42"],

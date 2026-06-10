@@ -131,7 +131,7 @@
         <div class="grid grid-cols-3 gap-2">
           <div><label class="block text-xs text-slate-500 mb-1">시작일</label><input type="date" id="ep-start" class="w-full px-2 py-1.5 border border-slate-200 rounded text-xs focus:outline-none focus:ring-1 focus:ring-violet-400"></div>
           <div><label class="block text-xs text-slate-500 mb-1">종료일</label><input type="date" id="ep-end" class="w-full px-2 py-1.5 border border-slate-200 rounded text-xs focus:outline-none focus:ring-1 focus:ring-violet-400"></div>
-          <div><label class="block text-xs text-slate-500 mb-1">공수</label><div class="flex gap-1"><input type="number" id="ep-effort" step="0.5" min="0" class="w-full px-2 py-1.5 border border-slate-200 rounded text-xs focus:outline-none focus:ring-1 focus:ring-violet-400"><select id="ep-unit" class="px-1 py-1.5 border border-slate-200 rounded text-xs bg-white"><option>MM</option><option>MD</option></select></div></div>
+          <div><label class="block text-xs text-slate-500 mb-1">공수</label><div class="flex gap-1"><input type="number" id="ep-effort" step="0.5" min="0" class="w-full px-2 py-1.5 border border-slate-200 rounded text-xs focus:outline-none focus:ring-1 focus:ring-violet-400"><select id="ep-unit" class="px-1 py-1.5 border border-slate-200 rounded text-xs bg-white"><option>MM</option><option>MW</option><option>MD</option></select></div></div>
         </div>
         <div id="ep-dup-warn" class="hidden items-start gap-2 bg-red-50 border border-red-200 rounded-lg px-3 py-2">
           <svg class="w-4 h-4 text-red-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg>
@@ -309,7 +309,7 @@
         <div><label class="block text-xs font-medium text-slate-500 mb-1">예상 공수</label>
           <div class="flex gap-1">
             <input type="number" id="m-effort" step="0.5" min="0" placeholder="0" class="flex-1 min-w-0 px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400">
-            <select id="m-unit" class="px-2 py-2 border border-slate-200 rounded-lg text-xs bg-white focus:outline-none"><option>MM</option><option>MD</option></select>
+            <select id="m-unit" class="px-2 py-2 border border-slate-200 rounded-lg text-xs bg-white focus:outline-none"><option>MM</option><option>MW</option><option>MD</option></select>
           </div></div>
       </div>
       <div><label class="block text-xs font-medium text-slate-500 mb-1">공수 상세 <span class="text-slate-300 font-normal">(산정 근거·세부 내역)</span></label>

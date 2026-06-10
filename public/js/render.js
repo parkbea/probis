@@ -48,7 +48,7 @@ function renderAll() {
 // ── 대시보드 ──────────────────────────────────
 function renderDashboard() {
   const act = activeProjects();
-  const mm = act.reduce((s,p) => s + (p.effortUnit==='MD' ? p.effort/20 : p.effort), 0);
+  const mm = act.reduce((s,p) => s + toMM(p.effort, p.effortUnit), 0);
   document.getElementById('dashboard').innerHTML = [
     statCard('전체',   act.length, '건', '#6366F1', 'M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10'),
     statCard('RFI',    act.filter(p=>p.type==='RFI').length, '건', '#3B82F6', 'M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z'),
@@ -298,7 +298,7 @@ function renderTeam() {
   activeProjects().forEach(p => (p.assignments||[]).forEach(a => {
     const key = a.memberId || a.name;
     if (!allocMap[key]) allocMap[key] = { totalMM:0, projects:[] };
-    const mm = a.effortUnit==='MD' ? a.effort/20 : a.effort;
+    const mm = toMM(a.effort, a.effortUnit);
     allocMap[key].totalMM += mm;
     allocMap[key].projects.push({ name:displayName(p), type:p.type, effort:a.effort, effortUnit:a.effortUnit });
   }));
