@@ -508,7 +508,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
 
         # 2. 해당 사용자들이 멤버인 프로젝트 조회
         user_ids  = [u['opId'] for u in op_users]
-        flt       = quote(json.dumps([{'member': {'operator': '=', 'values': user_ids}}]))
+        flt       = quote(json.dumps([{'principal': {'operator': '=', 'values': user_ids}}]))
         try:
             status, body = op_call(f'/api/v3/projects?filters={flt}&pageSize=200', base_url, api_key)
         except Exception as e:

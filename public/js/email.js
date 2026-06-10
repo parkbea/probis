@@ -18,6 +18,46 @@ function extractOpUrls(text) {
   return [...new Set(text.match(re) || [])].slice(0, 3);
 }
 
+// OpenProject URL을 "문맥(라벨) 기반"으로 Epic / 공수 / QA 로 분류
+// 순서가 아니라 URL 경로·앞 문장의 키워드로 판단하고, 못 찾은 건 순서대로 채움
+function classifyOpUrls(text) {
+  const urlRe = /https?:\/\/[^\s<>\n]+\/(?:work_packages?|projects?)\/[a-zA-Z0-9_\-%]+/;
+  const lines = text.split('\n');
+  const found = [];               // { url, ctx }
+  const seen  = new Set();
+  for (let i = 0; i < lines.length; i++) {
+    const m = lines[i].match(urlRe);
+    if (!m || seen.has(m[0])) continue;
+    seen.add(m[0]);
+    // 문맥 = URL이 있는 줄 + 바로 앞의 비어있지 않은 줄
+    let ctx = lines[i];
+    for (let j = i - 1; j >= 0 && j >= i - 3; j--) {
+      if (lines[j].trim()) { ctx = lines[j] + ' ' + ctx; break; }
+    }
+    found.push({ url: m[0], ctx });
+  }
+
+  const result   = { epic: '', effort: '', qa: '' };
+  const qaRe     = /qa|q&a|문의|질의|질문|inquiry/i;
+  const effortRe = /공수|effort|man[\s-]?(?:month|day)|견적|기입|입력|작성|회신|답변/i;
+  const rest     = [];
+
+  // 1차: 키워드로 QA·공수 먼저 배정
+  for (const { url, ctx } of found) {
+    const hay = url + ' ' + ctx;
+    if      (!result.qa     && qaRe.test(hay))     result.qa     = url;
+    else if (!result.effort && effortRe.test(hay)) result.effort = url;
+    else rest.push(url);
+  }
+  // 2차: 남은 URL을 순서대로 빈 슬롯(Epic→공수→QA)에 채움
+  for (const url of rest) {
+    if      (!result.epic)   result.epic   = url;
+    else if (!result.effort) result.effort = url;
+    else if (!result.qa)     result.qa     = url;
+  }
+  return result;
+}
+
 function analyzeEmail(text) {
   const r = {
     name:'', client:'', summary:'',
@@ -68,7 +108,8 @@ function analyzeEmail(text) {
     .filter(l => l.length > 20 && !/^[>※\-*]/.test(l) && !/^(보낸|받는|from|to|subject|cc|re:|fw:)/i.test(l))
     .slice(0, 3).join(' ').slice(0, 300);
 
-  r.opUrls = extractOpUrls(text);
+  const cls = classifyOpUrls(text);
+  r.opUrls = [cls.epic, cls.effort, cls.qa];   // [Epic, 공수, QA] 슬롯 고정
   return r;
 }
 
@@ -88,21 +129,18 @@ function analyzeAndPreview() {
   if (r.effort)     document.getElementById('ep-effort').value = r.effort;
   if (r.effortUnit) document.getElementById('ep-unit').value   = r.effortUnit;
 
-  // Epic URL (첫 번째)
+  // [Epic, 공수, QA] 슬롯 — 각 칸을 독립적으로 채움 (QA만 있어도 표시)
   const [url1='', url2='', url3=''] = r.opUrls;
   const opRow = document.getElementById('ep-op-row');
-  if (url1) {
-    document.getElementById('ep-opurl').value  = url1;
-    const row2 = document.getElementById('ep-op-row2');
-    const row3 = document.getElementById('ep-op-row3');
-    if (url2) { document.getElementById('ep-opurl2').value = url2; row2.classList.remove('hidden'); row2.classList.add('flex'); }
-    else       { row2.classList.add('hidden'); row2.classList.remove('flex'); }
-    if (url3) { document.getElementById('ep-opurl3').value = url3; row3.classList.remove('hidden'); row3.classList.add('flex'); }
-    else       { row3.classList.add('hidden'); row3.classList.remove('flex'); }
-    opRow.classList.remove('hidden'); opRow.classList.add('flex');
-  } else {
-    opRow.classList.add('hidden'); opRow.classList.remove('flex');
-  }
+  const row2  = document.getElementById('ep-op-row2');
+  const row3  = document.getElementById('ep-op-row3');
+  document.getElementById('ep-opurl').value  = url1;
+  if (url2) { document.getElementById('ep-opurl2').value = url2; row2.classList.remove('hidden'); row2.classList.add('flex'); }
+  else       { document.getElementById('ep-opurl2').value = ''; row2.classList.add('hidden'); row2.classList.remove('flex'); }
+  if (url3) { document.getElementById('ep-opurl3').value = url3; row3.classList.remove('hidden'); row3.classList.add('flex'); }
+  else       { document.getElementById('ep-opurl3').value = ''; row3.classList.add('hidden'); row3.classList.remove('flex'); }
+  if (url1 || url2 || url3) { opRow.classList.remove('hidden'); opRow.classList.add('flex'); }
+  else { opRow.classList.add('hidden'); opRow.classList.remove('flex'); }
 
   // 중복 체크: 첫 번째 URL이 기존 프로젝트의 opEpicUrl과 동일한지
   const dupWarn = document.getElementById('ep-dup-warn');
@@ -124,7 +162,7 @@ function analyzeAndPreview() {
 
   document.getElementById('email-preview').classList.remove('hidden');
 
-  const urlCount = r.opUrls.length;
+  const urlCount = r.opUrls.filter(Boolean).length;
   const msg = urlCount > 0
     ? `분석 완료! — OpenProject URL ${urlCount}개 감지` + (dupProj ? ' ⚠ 중복' : '')
     : '분석 완료!';

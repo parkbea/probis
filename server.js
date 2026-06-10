@@ -67,7 +67,7 @@ async function handleOpSync(req, res) {
 
   // 해당 사용자들이 멤버로 있는 프로젝트 조회 (조회 전용)
   const userIds    = opUsers.map(u => u.opId);
-  const filter     = encodeURIComponent(JSON.stringify([{ member: { operator: '=', values: userIds } }]));
+  const filter     = encodeURIComponent(JSON.stringify([{ principal: { operator: '=', values: userIds } }]));
   const projResult = await opRequest(`/api/v3/projects?filters=${filter}&pageSize=200`, baseUrl, apiKey);
 
   if (projResult.status !== 200) {

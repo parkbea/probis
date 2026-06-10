@@ -91,9 +91,12 @@ python server.py   # Python
 | `storage.js` | `loadFromFiles()`, `saveProjects()`, `saveMembers()`, `savePersonal()` |
 | `config.js` | `loadConfig()`, `saveConfig()`, `testOpConnection()`, `toggleSettingsPanel()` |
 | `openproject.js` | `fetchFromOpenProject()` — 이메일 분석 후 OP URL로 프로젝트 정보 자동 채우기 |
-| `render.js` | `renderAll()`, `renderDashboard()`, `renderKanban()`, `renderGantt()`, `renderCalendar()`, `renderTeam()` |
+| `render.js` | `renderAll()`, `renderDashboard()`, `renderKanban()`, `renderGantt()`, `renderCalendar()`, `renderTeam()`, `activeProjects()` |
+| `archive.js` | `archiveProject()`, `restoreProject()`, `openArchiveModal()`, `renderArchiveList()` — 완료 프로젝트 보관함 |
 | `modal.js` | `openCreateModal()`, `openEditModal()`, `saveProjectModal()`, `openMemberModal()`, `saveMemberModal()`, `openPersonalEventModal()` 등 |
-| `email.js` | `analyzeEmail()`, `analyzeAndPreview()`, `registerFromEmail()`, `toggleEmailPanel()` |
+| `email.js` | `analyzeEmail()`, `classifyOpUrls()`, `analyzeAndPreview()`, `registerFromEmail()`, `toggleEmailPanel()` |
+| `sync.js` | `syncFromOpenProject()` — OP에서 팀원이 멤버인 프로젝트 일괄 동기화 |
+| `weekly.js` | `openWeeklyModal()`, `generateWeeklyReport()` — 주간보고 |
 | `main.js` | `seedProjects()`, `seedMembers()`, `seedPersonal()`, `DOMContentLoaded` 핸들러 |
 
 ---
@@ -112,12 +115,16 @@ python server.py   # Python
 ### Project
 ```json
 { "id":"p1", "type":"RFI|RFP|실행중인 프로젝트", "name":"", "client":"",
-  "summary":"", "effort":5, "effortUnit":"MM|MD",
+  "summary":"", "effort":5, "effortUnit":"MM|MD", "effortDetail":"",
   "startDate":"YYYY-MM-DD", "endDate":"YYYY-MM-DD",
-  "status":"대기|진행중|완료", "emailContent":"",
+  "status":"대기|진행중|완료", "archived":false, "emailContent":"",
+  "opEpicUrl":"", "opEffortUrl":"", "opQaUrl":"",
   "assignments":[{"id":"a1","memberId":"m1","name":"","role":"","effort":1,"effortUnit":"MM"}],
   "createdAt":"ISO", "updatedAt":"ISO" }
 ```
+- `effortDetail` — 공수 산정 근거·세부 내역 (자유 텍스트)
+- `archived` — `true`면 완료 보관함으로 이동, 메인 화면에서 숨김 (복원 시 `false`)
+- `opEpicUrl` / `opEffortUrl` / `opQaUrl` — OpenProject Epic·공수·QA 링크
 
 ### Member
 ```json

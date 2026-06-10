@@ -9,6 +9,13 @@ function fmtDate(iso) {
   try { return new Date(iso).toLocaleDateString('ko-KR', { year:'numeric', month:'2-digit', day:'2-digit' }); }
   catch { return iso; }
 }
+// "YYYY-MM-DD"를 로컬 자정 Date로 파싱 (브라우저가 날짜만 있는 문자열을 UTC로 해석해 하루/타임존만큼 밀리는 문제 방지)
+function parseDate(s) {
+  if (!s) return null;
+  const [y, m, d] = String(s).split('-').map(Number);
+  if (!y || !m || !d) return new Date(s);
+  return new Date(y, m - 1, d);
+}
 function fmtShort(d) {
   if (!d) return '미정';
   const dt = new Date(d);

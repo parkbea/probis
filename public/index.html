@@ -40,6 +40,9 @@
       <button onclick="openWeeklyModal()" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-teal-600 hover:bg-teal-500 rounded-lg text-xs font-medium transition-colors">
         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>주간보고
       </button>
+      <button onclick="openArchiveModal()" class="relative inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-600 hover:bg-slate-500 rounded-lg text-xs font-medium transition-colors">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"/></svg>완료 프로젝트<span id="archive-badge" class="hidden ml-0.5 px-1.5 py-0.5 bg-slate-800 rounded-full text-[10px] font-bold leading-none">0</span>
+      </button>
       <button onclick="toggleSettingsPanel()" title="설정" class="p-1.5 bg-slate-700 hover:bg-slate-600 rounded-lg text-slate-300 hover:text-white transition-colors">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><circle cx="12" cy="12" r="3" stroke-width="2"/></svg>
       </button>
@@ -296,6 +299,8 @@
             <select id="m-unit" class="px-2 py-2 border border-slate-200 rounded-lg text-xs bg-white focus:outline-none"><option>MM</option><option>MD</option></select>
           </div></div>
       </div>
+      <div><label class="block text-xs font-medium text-slate-500 mb-1">공수 상세 <span class="text-slate-300 font-normal">(산정 근거·세부 내역)</span></label>
+        <textarea id="m-effort-detail" rows="4" placeholder="예) 요건분석 5MD, 화면설계 10MD, 개발 20MD … 산정 근거를 자유롭게 작성" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm resize-y focus:outline-none focus:ring-2 focus:ring-indigo-400"></textarea></div>
       <div class="border border-slate-200 rounded-xl overflow-hidden">
         <div class="flex items-center justify-between px-3 py-2 bg-slate-50 border-b border-slate-200">
           <span class="text-xs font-semibold text-slate-600">팀원 배정</span>
@@ -461,6 +466,21 @@
   </div>
 </div>
 
+<!-- ARCHIVE (완료 프로젝트) MODAL -->
+<div id="archive-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4">
+  <div class="modal-backdrop absolute inset-0" onclick="closeModal('archive')"></div>
+  <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[85vh] flex flex-col anim-slide">
+    <div class="flex items-center justify-between px-6 py-4 border-b border-slate-100">
+      <h2 class="text-base font-bold text-slate-800 flex items-center gap-2">
+        <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"/></svg>
+        완료 프로젝트 <span id="archive-count" class="text-sm font-medium text-slate-400">0건</span>
+      </h2>
+      <button onclick="closeModal('archive')" class="text-slate-400 hover:text-slate-600"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button>
+    </div>
+    <div id="archive-list" class="px-4 py-4 space-y-2 overflow-y-auto"></div>
+  </div>
+</div>
+
 <div id="toast-container" class="fixed bottom-5 right-5 z-50 space-y-2 pointer-events-none"></div>
 
 <!-- JS: 의존성 순서대로 로드 -->
@@ -471,6 +491,7 @@
 <script src="js/config.js"></script>
 <script src="js/openproject.js"></script>
 <script src="js/render.js"></script>
+<script src="js/archive.js"></script>
 <script src="js/modal.js"></script>
 <script src="js/email.js"></script>
 <script src="js/main.js"></script>

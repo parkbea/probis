@@ -1,7 +1,10 @@
 // ── 필터 ─────────────────────────────────────
+// 메인 화면용 = 보관(완료)되지 않은 프로젝트
+function activeProjects() { return projects.filter(p => !p.archived); }
 function filtered() {
   const q = searchTerm(), sf = statusFilter();
   return projects.filter(p => {
+    if (p.archived) return false;
     const ms = !q  || p.name.toLowerCase().includes(q);
     const mf = !sf || p.status === sf;
     return ms && mf;
@@ -11,7 +14,7 @@ function handleSearch() { renderKanban(); if (currentView==='gantt') renderGantt
 function handleFilter() { renderKanban(); if (currentView==='gantt') renderGantt(); updateCount(); }
 function updateCount() {
   const el = document.getElementById('filter-count');
-  const t = projects.length, f = filtered().length;
+  const t = activeProjects().length, f = filtered().length;
   el.textContent = (searchTerm() || statusFilter()) ? `${f} / ${t} 건` : `총 ${t} 건`;
 }
 
@@ -30,6 +33,7 @@ function switchView(v) {
 // ── 전체 렌더 ─────────────────────────────────
 function renderAll() {
   renderDashboard(); renderKanban(); updateCount();
+  if (typeof updateArchiveBadge === 'function') updateArchiveBadge();
   if (currentView === 'gantt')    renderGantt();
   if (currentView === 'calendar') renderCalendar();
   if (currentView === 'team')     renderTeam();
@@ -37,12 +41,13 @@ function renderAll() {
 
 // ── 대시보드 ──────────────────────────────────
 function renderDashboard() {
-  const mm = projects.reduce((s,p) => s + (p.effortUnit==='MD' ? p.effort/20 : p.effort), 0);
+  const act = activeProjects();
+  const mm = act.reduce((s,p) => s + (p.effortUnit==='MD' ? p.effort/20 : p.effort), 0);
   document.getElementById('dashboard').innerHTML = [
-    statCard('전체',   projects.length, '건', '#6366F1', 'M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10'),
-    statCard('RFI',    projects.filter(p=>p.type==='RFI').length, '건', '#3B82F6', 'M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z'),
-    statCard('RFP',    projects.filter(p=>p.type==='RFP').length, '건', '#F59E0B', 'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z'),
-    statCard('실행중', projects.filter(p=>p.type==='실행중인 프로젝트').length, '건', '#10B981', 'M13 10V3L4 14h7v7l9-11h-7z'),
+    statCard('전체',   act.length, '건', '#6366F1', 'M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10'),
+    statCard('RFI',    act.filter(p=>p.type==='RFI').length, '건', '#3B82F6', 'M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z'),
+    statCard('RFP',    act.filter(p=>p.type==='RFP').length, '건', '#F59E0B', 'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z'),
+    statCard('실행중', act.filter(p=>p.type==='실행중인 프로젝트').length, '건', '#10B981', 'M13 10V3L4 14h7v7l9-11h-7z'),
     statCard('총 공수', mm.toFixed(1), 'MM', '#8B5CF6', 'M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z'),
   ].join('');
 }
@@ -61,7 +66,7 @@ function renderKanban() {
   filtered().forEach(p => { if (cols[p.type]) cols[p.type].push(p); });
   ['RFI','RFP','실행중인 프로젝트'].forEach(t => {
     document.getElementById('col-'+t).innerHTML = cols[t].length ? cols[t].map(renderCard).join('') : emptyKanban();
-    document.getElementById('count-'+t).textContent = projects.filter(p=>p.type===t).length;
+    document.getElementById('count-'+t).textContent = activeProjects().filter(p=>p.type===t).length;
   });
 }
 function emptyKanban() {
@@ -95,7 +100,9 @@ function renderCard(p) {
     </div>
     ${assigns.length ? `<div class="mt-1.5 flex flex-wrap gap-1">${assigns.slice(0,3).map(a=>`<span class="text-xs bg-indigo-50 text-indigo-600 px-1.5 py-0.5 rounded-full">${esc(a.name)}</span>`).join('')}${assigns.length>3 ? `<span class="text-xs text-slate-400">+${assigns.length-3}</span>` : ''}</div>` : ''}
     ${dd ? `<div class="mt-1.5 text-xs ${dd.cls} font-medium">${dd.txt}</div>` : ''}
-    <div class="mt-2 flex gap-1 flex-wrap">${moveBtns}</div>
+    <div class="mt-2 flex gap-1 flex-wrap items-center">${moveBtns}
+      <button onclick="archiveProject(event,'${p.id}')" title="완료 처리(보관)" class="ml-auto text-xs px-2 py-0.5 rounded bg-slate-100 hover:bg-emerald-100 text-slate-500 hover:text-emerald-600 transition-colors font-medium">✓ 완료</button>
+    </div>
   </div>`;
 }
 function dDay(p) {
@@ -177,10 +184,11 @@ function renderGantt() {
   const el = document.getElementById('gantt-body');
   if (!ps.length) { el.innerHTML = `<p class="text-center text-slate-400 py-16 text-sm">일정이 등록된 프로젝트가 없습니다.</p>`; return; }
 
-  let minD = new Date(), maxD = new Date();
+  const today = new Date(); today.setHours(0,0,0,0);
+  let minD = new Date(today), maxD = new Date(today);
   ps.forEach(p => {
-    if (p.startDate) { const d = new Date(p.startDate); if (d < minD) minD = d; }
-    if (p.endDate)   { const d = new Date(p.endDate);   if (d > maxD) maxD = d; }
+    if (p.startDate) { const d = parseDate(p.startDate); if (d < minD) minD = d; }
+    if (p.endDate)   { const d = parseDate(p.endDate);   if (d > maxD) maxD = d; }
   });
   minD = new Date(minD.getFullYear(), minD.getMonth()-1, 1);
   maxD = new Date(maxD.getFullYear(), maxD.getMonth()+2, 0);
@@ -189,7 +197,7 @@ function renderGantt() {
   const months = []; let cur = new Date(minD.getFullYear(), minD.getMonth(), 1);
   while (cur <= maxD) { months.push(new Date(cur)); cur = new Date(cur.getFullYear(), cur.getMonth()+1, 1); }
 
-  const todayPct = Math.max(0, Math.min(100, (new Date() - minD) / totalMs * 100));
+  const todayPct = Math.max(0, Math.min(100, (today - minD) / totalMs * 100));
   const tc = { 'RFI':'#3B82F6', 'RFP':'#F59E0B', '실행중인 프로젝트':'#10B981' };
   const sa = { '완료':'bb', '진행중':'ff', '대기':'88' };
   const LW = 180;
@@ -203,8 +211,8 @@ function renderGantt() {
 
   ps.forEach(p => {
     const color = (tc[p.type]||'#6366f1') + (sa[p.status]||'ff');
-    const sD = p.startDate ? new Date(p.startDate) : new Date(minD);
-    const eD = p.endDate   ? new Date(p.endDate)   : new Date(maxD);
+    const sD = p.startDate ? parseDate(p.startDate) : new Date(minD);
+    const eD = p.endDate   ? parseDate(p.endDate)   : new Date(maxD);
     const lPct = Math.max(0, (sD - minD) / totalMs * 100);
     const wPct = Math.max(0.5, (eD - sD) / totalMs * 100);
     html += `<div class="flex items-center mb-2">
@@ -235,7 +243,7 @@ function renderCalendar() {
 
   const evMap = {};
   const addEv = (ds, obj) => { if (!evMap[ds]) evMap[ds]=[]; evMap[ds].push(obj); };
-  projects.filter(p => calTypeFilter[p.type]).forEach(p => {
+  projects.filter(p => calTypeFilter[p.type] && !p.archived).forEach(p => {
     if (p.startDate) addEv(p.startDate, { kind:'project', label:'▶ '+p.name, id:p.id, color:tc[p.type]||'#6366f1' });
     if (p.endDate && p.endDate !== p.startDate) addEv(p.endDate, { kind:'project', label:'■ '+p.name, id:p.id, color:tc[p.type]||'#6366f1' });
   });
@@ -281,7 +289,7 @@ function renderCalendar() {
 function renderTeam() {
   const totalCapMM = members.reduce((s,m) => s + (parseFloat(m.capacity)||1), 0);
   const allocMap = {};
-  projects.forEach(p => (p.assignments||[]).forEach(a => {
+  activeProjects().forEach(p => (p.assignments||[]).forEach(a => {
     const key = a.memberId || a.name;
     if (!allocMap[key]) allocMap[key] = { totalMM:0, projects:[] };
     const mm = a.effortUnit==='MD' ? a.effort/20 : a.effort;

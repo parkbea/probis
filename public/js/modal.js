@@ -13,6 +13,7 @@ function copyProject(e, id) {
   document.getElementById('m-effort').value     = src.effort||'';
   document.getElementById('m-unit').value       = src.effortUnit||'MM';
   document.getElementById('m-email').value      = src.emailContent||'';
+  document.getElementById('m-effort-detail').value = src.effortDetail||'';
   document.getElementById('m-epic-url').value   = '';
   document.getElementById('m-effort-url').value = '';
   document.getElementById('m-qa-url').value     = '';
@@ -35,7 +36,7 @@ function refreshMemberPicker() {
 function openCreateModal() {
   currentProjectId = null; modalAssignments = [];
   document.getElementById('project-modal-title').textContent = '새 프로젝트 등록';
-  ['m-type','m-status','m-name','m-start','m-end','m-effort','m-unit','m-email','m-epic-url','m-effort-url','m-qa-url'].forEach(id => {
+  ['m-type','m-status','m-name','m-start','m-end','m-effort','m-unit','m-email','m-effort-detail','m-epic-url','m-effort-url','m-qa-url'].forEach(id => {
     const el = document.getElementById(id);
     if (el.tagName === 'SELECT') el.selectedIndex = 0; else el.value = '';
   });
@@ -59,6 +60,7 @@ function openEditModal(id) {
   document.getElementById('m-effort').value     = p.effort||'';
   document.getElementById('m-unit').value       = p.effortUnit||'MM';
   document.getElementById('m-email').value      = p.emailContent||'';
+  document.getElementById('m-effort-detail').value = p.effortDetail||'';
   document.getElementById('m-epic-url').value   = p.opEpicUrl||'';
   document.getElementById('m-effort-url').value = p.opEffortUrl||'';
   document.getElementById('m-qa-url').value     = p.opQaUrl||'';
@@ -80,6 +82,7 @@ function saveProjectModal() {
     effortUnit:   document.getElementById('m-unit').value,
     status:       document.getElementById('m-status').value,
     emailContent: document.getElementById('m-email').value.trim(),
+    effortDetail: document.getElementById('m-effort-detail').value.trim(),
     opEpicUrl:    document.getElementById('m-epic-url').value.trim(),
     opEffortUrl:  document.getElementById('m-effort-url').value.trim(),
     opQaUrl:      document.getElementById('m-qa-url').value.trim(),
