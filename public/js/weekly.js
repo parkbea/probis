@@ -48,7 +48,7 @@ function renderWeeklyTable() {
       <td class="px-3 py-2 align-top min-w-[130px]">
         <div class="flex items-start gap-1.5">
           <span class="mt-1 w-2 h-2 rounded-full flex-shrink-0 ${tc}"></span>
-          <span class="text-xs font-semibold text-slate-800 leading-snug">${esc(p.name)}</span>
+          <span class="text-xs font-semibold text-slate-800 leading-snug">${esc(displayName(p))}</span>
         </div>
         <span class="ml-3.5 text-xs text-slate-400">${p.type}</span>
       </td>
@@ -86,7 +86,7 @@ async function generateWeeklyReport() {
   const active = projects.filter(p => p.status !== '완료');
 
   const rows = active.map(p => ({
-    name:      p.name,
+    name:      displayName(p),
     type:      p.type,
     thisWeek:  (document.getElementById(`wr-tw-${p.id}`)?.value || '').trim(),
     nextWeek:  (document.getElementById(`wr-nw-${p.id}`)?.value || '').trim(),

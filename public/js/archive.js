@@ -71,7 +71,7 @@ function renderArchiveList() {
       <div class="flex-1 min-w-0 cursor-pointer" onclick="closeModal('archive'); openEditModal('${p.id}')">
         <div class="flex items-center gap-2">
           <span class="text-xs px-1.5 py-0.5 rounded bg-slate-100 text-slate-500 font-medium flex-shrink-0">${tl[p.type]||esc(p.type)}</span>
-          <p class="text-sm font-semibold text-slate-700 truncate">${esc(p.name)}</p>
+          <p class="text-sm font-semibold text-slate-700 truncate">${esc(displayName(p))}</p>
         </div>
         <p class="text-xs text-slate-400 mt-0.5">
           ${fmtShort(p.startDate)}${p.endDate ? ' ~ '+fmtShort(p.endDate) : ''}

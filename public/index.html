@@ -273,8 +273,10 @@
             <option>대기</option><option>진행중</option><option>완료</option>
           </select></div>
       </div>
-      <div><label class="block text-xs font-medium text-slate-500 mb-1">프로젝트명 *</label>
-        <input type="text" id="m-name" placeholder="프로젝트명" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"></div>
+      <div><label class="block text-xs font-medium text-slate-500 mb-1">프로젝트명(원제) * <span class="text-slate-300 font-normal">(OpenProject 원본 / 일본어)</span></label>
+        <input type="text" id="m-name" placeholder="원본 프로젝트명" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"></div>
+      <div><label class="block text-xs font-medium text-slate-500 mb-1">서브타이틀 <span class="text-slate-300 font-normal">(한글 대표명 — 목록에 표시됨)</span></label>
+        <input type="text" id="m-subtitle" placeholder="한글로 알아보기 쉬운 이름" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"></div>
       <div class="border border-slate-200 rounded-xl p-3 space-y-2 bg-slate-50">
         <p class="text-xs font-semibold text-slate-500">OpenProject URL</p>
         <div class="flex items-center gap-2">
@@ -301,6 +303,8 @@
       </div>
       <div><label class="block text-xs font-medium text-slate-500 mb-1">공수 상세 <span class="text-slate-300 font-normal">(산정 근거·세부 내역)</span></label>
         <textarea id="m-effort-detail" rows="4" placeholder="예) 요건분석 5MD, 화면설계 10MD, 개발 20MD … 산정 근거를 자유롭게 작성" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm resize-y focus:outline-none focus:ring-2 focus:ring-indigo-400"></textarea></div>
+      <div><label class="block text-xs font-medium text-slate-500 mb-1">비고</label>
+        <textarea id="m-remark" rows="3" placeholder="기타 특이사항·메모" class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm resize-y focus:outline-none focus:ring-2 focus:ring-indigo-400"></textarea></div>
       <div class="border border-slate-200 rounded-xl overflow-hidden">
         <div class="flex items-center justify-between px-3 py-2 bg-slate-50 border-b border-slate-200">
           <span class="text-xs font-semibold text-slate-600">팀원 배정</span>

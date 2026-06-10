@@ -3,11 +3,13 @@
 function isDone(p) { return !!p.archived || p.status === '완료'; }
 // 메인 화면용 = 완료/보관되지 않은 프로젝트
 function activeProjects() { return projects.filter(p => !isDone(p)); }
+// 목록 대표 표시명 = 서브타이틀(한글) 우선, 없으면 원제(OpenProject name)
+function displayName(p) { return (p.subtitle && p.subtitle.trim()) ? p.subtitle : (p.name || ''); }
 function filtered() {
   const q = searchTerm(), sf = statusFilter();
   return projects.filter(p => {
     if (isDone(p)) return false;
-    const ms = !q  || p.name.toLowerCase().includes(q);
+    const ms = !q  || p.name.toLowerCase().includes(q) || (p.subtitle || '').toLowerCase().includes(q);
     const mf = !sf || p.status === sf;
     return ms && mf;
   });
@@ -87,7 +89,7 @@ function renderCard(p) {
   return `<div class="project-card bg-white border border-slate-200 rounded-xl p-3 border-l-4 ${lc[p.type]||''}"
     draggable="true" ondragstart="dragStart(event,'${p.id}')" ondragend="dragEnd(event)" onclick="openEditModal('${p.id}')">
     <div class="flex items-start justify-between gap-2 mb-1.5">
-      <h3 class="text-sm font-semibold text-slate-800 leading-snug flex-1 line-clamp-2">${esc(p.name)}</h3>
+      <h3 class="text-sm font-semibold text-slate-800 leading-snug flex-1 line-clamp-2">${esc(displayName(p))}</h3>
       <div class="flex items-center gap-1 flex-shrink-0">
         <button onclick="copyProject(event,'${p.id}')" title="복사" class="p-0.5 text-slate-300 hover:text-indigo-400 transition-colors">
           <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
@@ -218,9 +220,9 @@ function renderGantt() {
     const lPct = Math.max(0, (sD - minD) / totalMs * 100);
     const wPct = Math.max(0.5, (eD - sD) / totalMs * 100);
     html += `<div class="flex items-center mb-2">
-      <div class="flex-shrink-0 pr-3 text-right" style="width:${LW}px"><p class="text-xs font-semibold text-slate-700 truncate">${esc(p.name)}</p></div>
+      <div class="flex-shrink-0 pr-3 text-right" style="width:${LW}px"><p class="text-xs font-semibold text-slate-700 truncate">${esc(displayName(p))}</p></div>
       <div class="flex-1 relative h-9 flex items-center">
-        <div class="gantt-bar absolute" style="left:${lPct.toFixed(2)}%;width:${wPct.toFixed(2)}%;background:${color}" onclick="openEditModal('${p.id}')" title="${esc(p.name)}">${esc(p.name)}</div>
+        <div class="gantt-bar absolute" style="left:${lPct.toFixed(2)}%;width:${wPct.toFixed(2)}%;background:${color}" onclick="openEditModal('${p.id}')" title="${esc(displayName(p))}">${esc(displayName(p))}</div>
       </div>
     </div>`;
   });
@@ -246,8 +248,8 @@ function renderCalendar() {
   const evMap = {};
   const addEv = (ds, obj) => { if (!evMap[ds]) evMap[ds]=[]; evMap[ds].push(obj); };
   projects.filter(p => calTypeFilter[p.type] && !isDone(p)).forEach(p => {
-    if (p.startDate) addEv(p.startDate, { kind:'project', label:'▶ '+p.name, id:p.id, color:tc[p.type]||'#6366f1' });
-    if (p.endDate && p.endDate !== p.startDate) addEv(p.endDate, { kind:'project', label:'■ '+p.name, id:p.id, color:tc[p.type]||'#6366f1' });
+    if (p.startDate) addEv(p.startDate, { kind:'project', label:'▶ '+displayName(p), id:p.id, color:tc[p.type]||'#6366f1' });
+    if (p.endDate && p.endDate !== p.startDate) addEv(p.endDate, { kind:'project', label:'■ '+displayName(p), id:p.id, color:tc[p.type]||'#6366f1' });
   });
   if (calPersonalShow) {
     personal.forEach(ev => {
@@ -296,7 +298,7 @@ function renderTeam() {
     if (!allocMap[key]) allocMap[key] = { totalMM:0, projects:[] };
     const mm = a.effortUnit==='MD' ? a.effort/20 : a.effort;
     allocMap[key].totalMM += mm;
-    allocMap[key].projects.push({ name:p.name, type:p.type, effort:a.effort, effortUnit:a.effortUnit });
+    allocMap[key].projects.push({ name:displayName(p), type:p.type, effort:a.effort, effortUnit:a.effortUnit });
   }));
   const overloaded = members.filter(m => (allocMap[m.id]||{}).totalMM > (parseFloat(m.capacity)||1)*1.5).length;
 

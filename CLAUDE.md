@@ -114,7 +114,7 @@ python server.py   # Python
 
 ### Project
 ```json
-{ "id":"p1", "type":"RFI|RFP|실행중인 프로젝트", "name":"", "client":"",
+{ "id":"p1", "type":"RFI|RFP|실행중인 프로젝트", "name":"", "subtitle":"", "remark":"", "client":"",
   "summary":"", "effort":5, "effortUnit":"MM|MD", "effortDetail":"",
   "startDate":"YYYY-MM-DD", "endDate":"YYYY-MM-DD",
   "status":"대기|진행중|완료", "archived":false, "emailContent":"",
@@ -122,6 +122,9 @@ python server.py   # Python
   "assignments":[{"id":"a1","memberId":"m1","name":"","role":"","effort":1,"effortUnit":"MM"}],
   "createdAt":"ISO", "updatedAt":"ISO" }
 ```
+- `name` — OpenProject 원제(일본어). 모달 상세에서만 표시
+- `subtitle` — 한글 대표 표시명. 칸반·간트·캘린더·보관함·주간보고 등 목록에 우선 표시 (없으면 `name`으로 폴백, `displayName()`)
+- `remark` — 비고 (자유 텍스트)
 - `effortDetail` — 공수 산정 근거·세부 내역 (자유 텍스트)
 - `archived` — `true`면 완료 보관함으로 이동, 메인 화면에서 숨김 (복원 시 `false`)
 - `opEpicUrl` / `opEffortUrl` / `opQaUrl` — OpenProject Epic·공수·QA 링크

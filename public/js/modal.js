@@ -8,6 +8,8 @@ function copyProject(e, id) {
   document.getElementById('m-type').value       = src.type;
   document.getElementById('m-status').value     = src.status;
   document.getElementById('m-name').value       = src.name + ' (복사)';
+  document.getElementById('m-subtitle').value   = src.subtitle || '';
+  document.getElementById('m-remark').value     = src.remark || '';
   document.getElementById('m-start').value      = src.startDate||'';
   document.getElementById('m-end').value        = src.endDate||'';
   document.getElementById('m-effort').value     = src.effort||'';
@@ -36,7 +38,7 @@ function refreshMemberPicker() {
 function openCreateModal() {
   currentProjectId = null; modalAssignments = [];
   document.getElementById('project-modal-title').textContent = '새 프로젝트 등록';
-  ['m-type','m-status','m-name','m-start','m-end','m-effort','m-unit','m-email','m-effort-detail','m-epic-url','m-effort-url','m-qa-url'].forEach(id => {
+  ['m-type','m-status','m-name','m-subtitle','m-remark','m-start','m-end','m-effort','m-unit','m-email','m-effort-detail','m-epic-url','m-effort-url','m-qa-url'].forEach(id => {
     const el = document.getElementById(id);
     if (el.tagName === 'SELECT') el.selectedIndex = 0; else el.value = '';
   });
@@ -55,6 +57,8 @@ function openEditModal(id) {
   document.getElementById('m-type').value       = p.type;
   document.getElementById('m-status').value     = p.status;
   document.getElementById('m-name').value       = p.name;
+  document.getElementById('m-subtitle').value   = p.subtitle || '';
+  document.getElementById('m-remark').value     = p.remark || '';
   document.getElementById('m-start').value      = p.startDate||'';
   document.getElementById('m-end').value        = p.endDate||'';
   document.getElementById('m-effort').value     = p.effort||'';
@@ -76,6 +80,8 @@ function saveProjectModal() {
   if (!name) { showToast('프로젝트명은 필수입니다', 'error'); return; }
   const d = {
     type:         document.getElementById('m-type').value,   name,
+    subtitle:     document.getElementById('m-subtitle').value.trim(),
+    remark:       document.getElementById('m-remark').value.trim(),
     startDate:    document.getElementById('m-start').value,
     endDate:      document.getElementById('m-end').value,
     effort:       parseFloat(document.getElementById('m-effort').value) || 0,
