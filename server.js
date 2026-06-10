@@ -99,7 +99,11 @@ async function handleOpSync(req, res) {
     return;
   }
 
-  const opProjects = projResult.body._embedded?.elements || [];
+  // 상태가 '마침(finished)'인 프로젝트는 제외
+  const opProjects = (projResult.body._embedded?.elements || []).filter(p => {
+    const st = p._links?.status || {};
+    return !(st.href || '').toLowerCase().endsWith('/finished') && !/finish|마침/i.test(st.title || '');
+  });
   const nowIso     = new Date().toISOString();
 
   const mapped = opProjects.map(p => ({

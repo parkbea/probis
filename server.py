@@ -535,7 +535,17 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         except Exception as e:
             self._json_response(502, {'error': f'OpenProject 프로젝트 조회 실패: {e}'}); return
 
-        op_projects = body.get('_embedded', {}).get('elements', [])
+        # 상태가 '마침(finished)'인 프로젝트는 제외
+        def _is_finished(p):
+            st    = p.get('_links', {}).get('status') or {}
+            href  = (st.get('href') or '').lower()
+            title = st.get('title') or ''
+            return href.endswith('/finished') or 'finish' in title.lower() or '마침' in title
+
+        op_projects = [
+            p for p in body.get('_embedded', {}).get('elements', [])
+            if not _is_finished(p)
+        ]
 
         # 3. koFlow 포맷으로 변환
         from datetime import datetime, timezone
