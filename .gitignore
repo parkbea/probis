@@ -1,0 +1,7 @@
+# Python
+__pycache__/
+*.pyc
+
+# OS / 임시
+Thumbs.db
+.DS_Store
