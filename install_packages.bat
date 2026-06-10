@@ -32,7 +32,7 @@ if %ERRORLEVEL% == 0 (
 ) else (
     echo ============================================
     echo   [설치 실패] Python 버전을 확인하세요.
-    echo   패키지는 Python 3.12 / Windows 64bit 용입니다.
+    echo   패키지는 Python 3.13 / Windows 64bit 용입니다.
     echo ============================================
 )
 
