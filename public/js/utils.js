@@ -21,6 +21,13 @@ function fmtShort(d) {
   const dt = new Date(d);
   return `${dt.getMonth()+1}/${dt.getDate()}`;
 }
+// 입력칸의 URL을 새 창으로 열기 (http가 없으면 붙여줌)
+function openUrlField(id) {
+  let v = (document.getElementById(id).value || '').trim();
+  if (!v) { showToast('URL이 비어 있습니다', 'warning'); return; }
+  if (!/^https?:\/\//i.test(v)) v = 'http://' + v;
+  window.open(v, '_blank', 'noopener');
+}
 function searchTerm()  { return document.getElementById('search-input').value.toLowerCase(); }
 function statusFilter(){ return document.getElementById('status-filter').value; }
 
