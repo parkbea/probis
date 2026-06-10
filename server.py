@@ -494,11 +494,14 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         if not base_url or not api_key:
             self._json_response(400, {'error': 'OpenProject 설정(URL/API 키)이 필요합니다'}); return
 
-        # opUserId가 등록된 팀원만 사용 (조회 전용)
+        # opUserId가 등록된 팀원만 사용 (opId 쿼리 지정 시 해당 직원만 갱신)
+        from urllib.parse import urlparse, parse_qs
+        only_op_id = (parse_qs(urlparse(self.path).query).get('opId') or [None])[0]
         members  = members_data.get('members', [])
         op_users = [
             {'name': m.get('name', ''), 'opId': str(m['opUserId'])}
-            for m in members if m.get('opUserId')
+            for m in members
+            if m.get('opUserId') and (not only_op_id or str(m['opUserId']) == str(only_op_id))
         ]
 
         if not op_users:

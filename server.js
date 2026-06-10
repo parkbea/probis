@@ -51,10 +51,11 @@ async function handleOpSync(req, res) {
     return;
   }
 
-  // opUserId가 등록된 팀원만 사용
+  // opUserId가 등록된 팀원만 사용 (opId 쿼리 지정 시 해당 직원만 갱신)
+  const onlyOpId = new URL(req.url, 'http://localhost').searchParams.get('opId');
   const members = membersData.members || [];
   const opUsers = members
-    .filter(m => m.opUserId)
+    .filter(m => m.opUserId && (!onlyOpId || String(m.opUserId) === String(onlyOpId)))
     .map(m => ({ name: m.name, opId: String(m.opUserId) }));
 
   if (opUsers.length === 0) {
